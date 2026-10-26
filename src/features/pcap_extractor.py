@@ -21,10 +21,13 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any, Iterator
 
 import pandas as pd
-import numpy as np
-from scapy.all import PcapReader, IP, IPv6, TCP, UDP, ICMP
-
-# Ensure project root in path
+try:
+    from scapy.all import PcapReader, IP, IPv6, TCP, UDP, ICMP
+    SCAPY_AVAILABLE = True
+except (ImportError, Exception):
+    SCAPY_AVAILABLE = False
+    PcapReader = None
+    IP = IPv6 = TCP = UDP = ICMP = None
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from src.data.schema import get_biflow_columns
 
@@ -188,6 +191,9 @@ class PcapFlowExtractor:
         """
         self.active_flows.clear()
         self.completed_flows.clear()
+
+        if not SCAPY_AVAILABLE:
+            raise ImportError("Scapy packet engine is not available in this environment. PCAP dissection disabled.")
 
         reader = PcapReader(pcap_source)
         packet_count = 0
