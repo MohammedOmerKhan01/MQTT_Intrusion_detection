@@ -1,0 +1,35 @@
+{
+  "flow_type": "uniflow",
+  "feature_count": 16,
+  "feature_names": [
+    "max_iat",
+    "max_pkt_len",
+    "mean_iat",
+    "mean_pkt_len",
+    "min_iat",
+    "min_pkt_len",
+    "num_bytes",
+    "num_pkts",
+    "num_psh_flags",
+    "num_rst_flags",
+    "num_urg_flags",
+    "proto",
+    "prt_dst",
+    "std_iat",
+    "std_pkt_len",
+    "bytes_per_pkt"
+  ],
+  "excluded_identifiers": [
+    "ip_src",
+    "ip_dst",
+    "prt_src"
+  ],
+  "excluded_metadata": [
+    "is_attack",
+    "scenario",
+    "attack_type"
+  ],
+  "metadata": {
+    "description": "Leakage-safe engineered features for Uniflow classification"
+  }
+}

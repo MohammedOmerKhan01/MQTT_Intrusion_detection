@@ -1,0 +1,649 @@
+{
+  "malicious_sample_explanation": {
+    "verdict": "MALICIOUS INTRUSION ALERT",
+    "predicted_class": 1,
+    "confidence_scores": {
+      "normal_probability": 0.0,
+      "attack_probability": 1.0
+    },
+    "base_value_attack": 0.5001,
+    "executive_summary": "Flow flagged as MALICIOUS with 100.0% estimated probability. The baseline model prior was 50.0%, and observed features pushed the posterior by +50.0% toward an alert.",
+    "top_attack_drivers": [
+      {
+        "feature": "bytes_per_pkt",
+        "value": 41.9998,
+        "shap_value": 0.06753,
+        "abs_shap": 0.06753,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "pkt_ratio",
+        "value": 1.0,
+        "shap_value": 0.05567,
+        "abs_shap": 0.05567,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_mean_pkt_len",
+        "value": 44.0,
+        "shap_value": 0.0541,
+        "abs_shap": 0.0541,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "byte_ratio",
+        "value": 1.1,
+        "shap_value": 0.04143,
+        "abs_shap": 0.04143,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "pkt_len_ratio",
+        "value": 1.1,
+        "shap_value": 0.04029,
+        "abs_shap": 0.04029,
+        "direction": "INCREASES_ATTACK_RISK"
+      }
+    ],
+    "top_benign_drivers": [
+      {
+        "feature": "fwd_num_psh_flags",
+        "value": 0.0,
+        "shap_value": -0.00398,
+        "abs_shap": 0.00398,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_pkts",
+        "value": 1.0,
+        "shap_value": -0.00328,
+        "abs_shap": 0.00328,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_std_iat",
+        "value": 0.0,
+        "shap_value": -0.00278,
+        "abs_shap": 0.00278,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_psh_flags",
+        "value": 0.0,
+        "shap_value": -0.00256,
+        "abs_shap": 0.00256,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_std_iat",
+        "value": 0.0,
+        "shap_value": -0.00206,
+        "abs_shap": 0.00206,
+        "direction": "SUPPORTS_NORMAL"
+      }
+    ],
+    "analyst_briefing_points": [
+      "Feature 'bytes_per_pkt' observed at 41.9998 pushed model output toward Attack by +0.0675.",
+      "Feature 'pkt_ratio' observed at 1.0 pushed model output toward Attack by +0.0557.",
+      "Feature 'fwd_mean_pkt_len' observed at 44.0 pushed model output toward Attack by +0.0541.",
+      "Feature 'byte_ratio' observed at 1.1 pushed model output toward Attack by +0.0414.",
+      "Feature 'pkt_len_ratio' observed at 1.1 pushed model output toward Attack by +0.0403."
+    ],
+    "all_feature_contributions": [
+      {
+        "feature": "bytes_per_pkt",
+        "value": 41.9998,
+        "shap_value": 0.06753,
+        "abs_shap": 0.06753,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "pkt_ratio",
+        "value": 1.0,
+        "shap_value": 0.05567,
+        "abs_shap": 0.05567,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_mean_pkt_len",
+        "value": 44.0,
+        "shap_value": 0.0541,
+        "abs_shap": 0.0541,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "byte_ratio",
+        "value": 1.1,
+        "shap_value": 0.04143,
+        "abs_shap": 0.04143,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "pkt_len_ratio",
+        "value": 1.1,
+        "shap_value": 0.04029,
+        "abs_shap": 0.04029,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_max_pkt_len",
+        "value": 44.0,
+        "shap_value": 0.03837,
+        "abs_shap": 0.03837,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "prt_dst",
+        "value": 5962.0,
+        "shap_value": 0.03776,
+        "abs_shap": 0.03776,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_max_pkt_len",
+        "value": 40.0,
+        "shap_value": 0.03033,
+        "abs_shap": 0.03033,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_min_pkt_len",
+        "value": 40.0,
+        "shap_value": 0.02952,
+        "abs_shap": 0.02952,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_min_iat",
+        "value": 0.0,
+        "shap_value": 0.02404,
+        "abs_shap": 0.02404,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_min_iat",
+        "value": 0.0,
+        "shap_value": 0.01935,
+        "abs_shap": 0.01935,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_min_pkt_len",
+        "value": 44.0,
+        "shap_value": 0.01708,
+        "abs_shap": 0.01708,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_mean_iat",
+        "value": 0.0,
+        "shap_value": 0.01511,
+        "abs_shap": 0.01511,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_std_pkt_len",
+        "value": 0.0,
+        "shap_value": 0.01328,
+        "abs_shap": 0.01328,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_num_bytes",
+        "value": 44.0,
+        "shap_value": 0.01297,
+        "abs_shap": 0.01297,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_mean_pkt_len",
+        "value": 40.0,
+        "shap_value": 0.00815,
+        "abs_shap": 0.00815,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "total_bytes",
+        "value": 84.0,
+        "shap_value": 0.00669,
+        "abs_shap": 0.00669,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_max_iat",
+        "value": 0.0,
+        "shap_value": 0.00552,
+        "abs_shap": 0.00552,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "fwd_num_psh_flags",
+        "value": 0.0,
+        "shap_value": -0.00398,
+        "abs_shap": 0.00398,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_pkts",
+        "value": 1.0,
+        "shap_value": -0.00328,
+        "abs_shap": 0.00328,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_std_iat",
+        "value": 0.0,
+        "shap_value": -0.00278,
+        "abs_shap": 0.00278,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_psh_flags",
+        "value": 0.0,
+        "shap_value": -0.00256,
+        "abs_shap": 0.00256,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_std_iat",
+        "value": 0.0,
+        "shap_value": -0.00206,
+        "abs_shap": 0.00206,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_mean_iat",
+        "value": 0.0,
+        "shap_value": -0.00198,
+        "abs_shap": 0.00198,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_num_pkts",
+        "value": 1.0,
+        "shap_value": -0.0013,
+        "abs_shap": 0.0013,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_max_iat",
+        "value": 0.0,
+        "shap_value": -0.00105,
+        "abs_shap": 0.00105,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "proto",
+        "value": 6.0,
+        "shap_value": 0.00101,
+        "abs_shap": 0.00101,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_num_bytes",
+        "value": 40.0,
+        "shap_value": 0.00078,
+        "abs_shap": 0.00078,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "bwd_std_pkt_len",
+        "value": 0.0,
+        "shap_value": -0.00076,
+        "abs_shap": 0.00076,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "total_pkts",
+        "value": 2.0,
+        "shap_value": 0.00058,
+        "abs_shap": 0.00058,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "bwd_num_rst_flags",
+        "value": 1.0,
+        "shap_value": 0.00012,
+        "abs_shap": 0.00012,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "bwd_num_urg_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "fwd_num_rst_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "fwd_num_urg_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      }
+    ],
+    "disclaimer": "NOTE: SHAP contributions describe internal model feature attribution, not causal proof of malicious intent on the physical network."
+  },
+  "benign_sample_explanation": {
+    "verdict": "BENIGN TRAFFIC (NORMAL)",
+    "predicted_class": 0,
+    "confidence_scores": {
+      "normal_probability": 1.0,
+      "attack_probability": 0.0
+    },
+    "base_value_attack": 0.5001,
+    "executive_summary": "Flow classified as BENIGN with 100.0% confidence. Model estimated attack probability is only 0.0%.",
+    "top_attack_drivers": [
+      {
+        "feature": "prt_dst",
+        "value": 1883.0,
+        "shap_value": 0.00522,
+        "abs_shap": 0.00522,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "proto",
+        "value": 6.0,
+        "shap_value": 0.00099,
+        "abs_shap": 0.00099,
+        "direction": "NEUTRAL"
+      }
+    ],
+    "top_benign_drivers": [
+      {
+        "feature": "byte_ratio",
+        "value": 1.7941,
+        "shap_value": -0.06307,
+        "abs_shap": 0.06307,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "pkt_ratio",
+        "value": 1.4,
+        "shap_value": -0.0569,
+        "abs_shap": 0.0569,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bytes_per_pkt",
+        "value": 63.3333,
+        "shap_value": -0.05198,
+        "abs_shap": 0.05198,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "pkt_len_ratio",
+        "value": 1.2815,
+        "shap_value": -0.05073,
+        "abs_shap": 0.05073,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_mean_pkt_len",
+        "value": 69.7143,
+        "shap_value": -0.04392,
+        "abs_shap": 0.04392,
+        "direction": "SUPPORTS_NORMAL"
+      }
+    ],
+    "analyst_briefing_points": [
+      "Feature 'byte_ratio' observed at 1.7941 reduced attack risk by -0.0631 (supports Normal).",
+      "Feature 'pkt_ratio' observed at 1.4 reduced attack risk by -0.0569 (supports Normal).",
+      "Feature 'bytes_per_pkt' observed at 63.3333 reduced attack risk by -0.0520 (supports Normal).",
+      "Feature 'pkt_len_ratio' observed at 1.2815 reduced attack risk by -0.0507 (supports Normal).",
+      "Feature 'fwd_mean_pkt_len' observed at 69.7143 reduced attack risk by -0.0439 (supports Normal)."
+    ],
+    "all_feature_contributions": [
+      {
+        "feature": "byte_ratio",
+        "value": 1.7941,
+        "shap_value": -0.06307,
+        "abs_shap": 0.06307,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "pkt_ratio",
+        "value": 1.4,
+        "shap_value": -0.0569,
+        "abs_shap": 0.0569,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bytes_per_pkt",
+        "value": 63.3333,
+        "shap_value": -0.05198,
+        "abs_shap": 0.05198,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "pkt_len_ratio",
+        "value": 1.2815,
+        "shap_value": -0.05073,
+        "abs_shap": 0.05073,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_mean_pkt_len",
+        "value": 69.7143,
+        "shap_value": -0.04392,
+        "abs_shap": 0.04392,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_min_pkt_len",
+        "value": 52.0,
+        "shap_value": -0.03083,
+        "abs_shap": 0.03083,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_max_pkt_len",
+        "value": 116.0,
+        "shap_value": -0.02684,
+        "abs_shap": 0.02684,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_bytes",
+        "value": 272.0,
+        "shap_value": -0.01726,
+        "abs_shap": 0.01726,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_max_pkt_len",
+        "value": 60.0,
+        "shap_value": -0.0167,
+        "abs_shap": 0.0167,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_min_iat",
+        "value": 0.0,
+        "shap_value": -0.01669,
+        "abs_shap": 0.01669,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_num_bytes",
+        "value": 488.0,
+        "shap_value": -0.01565,
+        "abs_shap": 0.01565,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "total_bytes",
+        "value": 760.0,
+        "shap_value": -0.01089,
+        "abs_shap": 0.01089,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_std_pkt_len",
+        "value": 25.2627,
+        "shap_value": -0.01072,
+        "abs_shap": 0.01072,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_pkts",
+        "value": 5.0,
+        "shap_value": -0.01055,
+        "abs_shap": 0.01055,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_num_psh_flags",
+        "value": 3.0,
+        "shap_value": -0.00929,
+        "abs_shap": 0.00929,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_min_pkt_len",
+        "value": 52.0,
+        "shap_value": -0.00799,
+        "abs_shap": 0.00799,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_mean_iat",
+        "value": 0.0003,
+        "shap_value": -0.00792,
+        "abs_shap": 0.00792,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_max_iat",
+        "value": 0.0008,
+        "shap_value": -0.00752,
+        "abs_shap": 0.00752,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_min_iat",
+        "value": 0.0,
+        "shap_value": -0.00716,
+        "abs_shap": 0.00716,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_mean_iat",
+        "value": 0.0003,
+        "shap_value": -0.00701,
+        "abs_shap": 0.00701,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_psh_flags",
+        "value": 1.0,
+        "shap_value": -0.006,
+        "abs_shap": 0.006,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_num_pkts",
+        "value": 7.0,
+        "shap_value": -0.00572,
+        "abs_shap": 0.00572,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "prt_dst",
+        "value": 1883.0,
+        "shap_value": 0.00522,
+        "abs_shap": 0.00522,
+        "direction": "INCREASES_ATTACK_RISK"
+      },
+      {
+        "feature": "bwd_mean_pkt_len",
+        "value": 54.4,
+        "shap_value": -0.00514,
+        "abs_shap": 0.00514,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_max_iat",
+        "value": 0.0006,
+        "shap_value": -0.00504,
+        "abs_shap": 0.00504,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "total_pkts",
+        "value": 12.0,
+        "shap_value": -0.00494,
+        "abs_shap": 0.00494,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_std_iat",
+        "value": 0.0003,
+        "shap_value": -0.00461,
+        "abs_shap": 0.00461,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "fwd_std_iat",
+        "value": 0.0003,
+        "shap_value": -0.00312,
+        "abs_shap": 0.00312,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "bwd_num_rst_flags",
+        "value": 0.0,
+        "shap_value": -0.00147,
+        "abs_shap": 0.00147,
+        "direction": "SUPPORTS_NORMAL"
+      },
+      {
+        "feature": "proto",
+        "value": 6.0,
+        "shap_value": 0.00099,
+        "abs_shap": 0.00099,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "bwd_std_pkt_len",
+        "value": 3.2,
+        "shap_value": -0.00063,
+        "abs_shap": 0.00063,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "bwd_num_urg_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "fwd_num_rst_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      },
+      {
+        "feature": "fwd_num_urg_flags",
+        "value": 0.0,
+        "shap_value": 0.0,
+        "abs_shap": 0.0,
+        "direction": "NEUTRAL"
+      }
+    ],
+    "disclaimer": "NOTE: SHAP contributions describe internal model feature attribution, not causal proof of malicious intent on the physical network."
+  },
+  "figures_generated": [
+    "local_shap_alert.png",
+    "local_shap_normal.png"
+  ]
+}

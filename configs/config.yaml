@@ -1,0 +1,53 @@
+project:
+  name: "ml-nids-rf-xai"
+  description: "Machine Learning-Based Network Intrusion Detection System with Random Forest and SHAP Explainable AI"
+  version: "1.0.0"
+  random_seed: 42
+
+paths:
+  archives:
+    uniflow: "uniflow_features.zip"
+    biflow: "biflow_features.zip"
+    packet: "packet_features.zip"
+    pcap: "pcap_files.zip"
+  data_raw: "data/raw"
+  data_interim: "data/interim"
+  data_processed: "data/processed"
+  manifest: "data/manifest.json"
+  artifacts: "artifacts"
+  reports: "reports"
+
+dataset:
+  attack_scenarios:
+    - name: "mqtt_bruteforce"
+      description: "MQTT protocol credential brute-force attack targeting IoT broker"
+      default_protocol: "TCP/MQTT"
+    - name: "normal"
+      description: "Baseline benign IoT and network traffic"
+      default_protocol: "Mixed"
+    - name: "scan_A"
+      description: "Nmap ACK port scan (-sA) used to map firewall rule sets"
+      default_protocol: "TCP"
+    - name: "scan_sU"
+      description: "Nmap UDP port scan (-sU) targeting open UDP service endpoints"
+      default_protocol: "UDP"
+    - name: "sparta"
+      description: "Automated network penetration testing tool performing reconnaissance and brute-force"
+      default_protocol: "TCP/Mixed"
+
+target:
+  binary_column: "is_attack"
+  multiclass_column: "attack_type"
+  positive_label: 1
+  negative_label: 0
+
+extraction:
+  tool: "scapy"
+  scapy_version: "2.8.0"
+  inactivity_timeout_seconds: 120.0
+  active_timeout_seconds: 1800.0
+  length_basis: "ip_total_length" # IP header len field (pkt[IP].len), matching dataset convention
+  require_bidirectional: true
+  min_packets_forward: 1
+  min_packets_backward: 1
+

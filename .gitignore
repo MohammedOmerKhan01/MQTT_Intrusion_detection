@@ -1,0 +1,33 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Large raw captures & archives
+*.pcap
+*.pcapng
+*.zip
+data/raw/
+!data/raw/.gitkeep
+data/interim/
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Retain lightweight trained model binaries for turnkey reproduction
+# (Total model artifacts < 5MB)
+!artifacts/models/*.joblib

@@ -1,0 +1,51 @@
+{
+  "biflow_quality": {
+    "flow_type": "biflow",
+    "total_records": 259379,
+    "null_counts": {},
+    "infinite_counts": {},
+    "exact_duplicate_rows": 378,
+    "conflicting_5tuples": 0,
+    "out_of_bound_ports": 0,
+    "unrecognized_protocols": 0,
+    "negative_measurement_counts": {}
+  },
+  "uniflow_quality": {
+    "flow_type": "uniflow",
+    "total_records": 495525,
+    "null_counts": {},
+    "infinite_counts": {},
+    "exact_duplicate_rows": 684,
+    "conflicting_5tuples": 0,
+    "out_of_bound_ports": 0,
+    "unrecognized_protocols": 0,
+    "negative_measurement_counts": {}
+  },
+  "leakage_assessment": {
+    "unique_src_ips_normal": 19,
+    "unique_src_ips_attack": 2,
+    "overlapping_src_ips_count": 0,
+    "overlapping_src_ips": [],
+    "top_normal_dst_ports": {
+      "1883": 172610,
+      "53": 15746,
+      "67": 17,
+      "1234": 5
+    },
+    "top_attack_dst_ports": {
+      "22": 14173,
+      "1883": 14114,
+      "32768": 992,
+      "53": 547,
+      "3703": 103
+    },
+    "ip_overlap_ratio": 0.0
+  },
+  "figures_generated": [
+    "class_balance.png",
+    "feature_distributions.png",
+    "tcp_flags_comparison.png",
+    "correlation_heatmap.png",
+    "leakage_analysis.png"
+  ]
+}

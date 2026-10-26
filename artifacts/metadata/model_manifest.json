@@ -1,0 +1,180 @@
+{
+  "manifest_version": "1.0.0",
+  "model_id": "ml_nids_rf_v1.0.0",
+  "model_version": "1.0.0",
+  "created_at": "2026-10-26T14:34:17Z",
+  "author": "Antigravity ML-NIDS Research Team",
+  "serialization_format": "joblib (protocol 5, zlib compression)",
+  "security_policy": {
+    "untrusted_deserialization_policy": "REJECT_WITHOUT_CHECKSUM",
+    "integrity_verification_algorithm": "SHA-256",
+    "cwe_mitigation": "CWE-502 Deserialization of Untrusted Data"
+  },
+  "artifacts": {
+    "rf_binary_model.joblib": {
+      "path": "artifacts\\models\\rf_binary_model.joblib",
+      "size_bytes": 2197113,
+      "sha256": "145bf1f6b60a864a118d1556941f5cfad035849421425811b672b2a37500b64a"
+    },
+    "rf_multiclass_model.joblib": {
+      "path": "artifacts\\models\\rf_multiclass_model.joblib",
+      "size_bytes": 951073,
+      "sha256": "70b085eef799a1e6907197f07b05e947cf43b620bd4eb6c719630e66458b89b0"
+    }
+  },
+  "class_label_mapping": {
+    "binary_classification": {
+      "0": "NORMAL",
+      "1": "ATTACK"
+    },
+    "multiclass_classification": {
+      "0": "mqtt_bruteforce",
+      "1": "normal",
+      "2": "scan_A",
+      "3": "scan_sU",
+      "4": "sparta"
+    }
+  },
+  "feature_schema": {
+    "representation": "bidirectional_flow",
+    "feature_count": 34,
+    "feature_names": [
+      "bwd_max_iat",
+      "bwd_max_pkt_len",
+      "bwd_mean_iat",
+      "bwd_mean_pkt_len",
+      "bwd_min_iat",
+      "bwd_min_pkt_len",
+      "bwd_num_bytes",
+      "bwd_num_pkts",
+      "bwd_num_psh_flags",
+      "bwd_num_rst_flags",
+      "bwd_num_urg_flags",
+      "bwd_std_iat",
+      "bwd_std_pkt_len",
+      "fwd_max_iat",
+      "fwd_max_pkt_len",
+      "fwd_mean_iat",
+      "fwd_mean_pkt_len",
+      "fwd_min_iat",
+      "fwd_min_pkt_len",
+      "fwd_num_bytes",
+      "fwd_num_pkts",
+      "fwd_num_psh_flags",
+      "fwd_num_rst_flags",
+      "fwd_num_urg_flags",
+      "fwd_std_iat",
+      "fwd_std_pkt_len",
+      "proto",
+      "prt_dst",
+      "pkt_ratio",
+      "total_pkts",
+      "byte_ratio",
+      "total_bytes",
+      "bytes_per_pkt",
+      "pkt_len_ratio"
+    ],
+    "excluded_identifiers": [
+      "ip_src",
+      "ip_dst",
+      "prt_src"
+    ],
+    "excluded_metadata": [
+      "is_attack",
+      "scenario",
+      "attack_type"
+    ],
+    "engineered_ratios": [
+      {
+        "name": "pkt_ratio",
+        "formula": "fwd_num_pkts / (bwd_num_pkts + 1e-5)"
+      },
+      {
+        "name": "byte_ratio",
+        "formula": "fwd_num_bytes / (bwd_num_bytes + 1e-5)"
+      },
+      {
+        "name": "total_pkts",
+        "formula": "fwd_num_pkts + bwd_num_pkts"
+      },
+      {
+        "name": "total_bytes",
+        "formula": "fwd_num_bytes + bwd_num_bytes"
+      },
+      {
+        "name": "bytes_per_pkt",
+        "formula": "total_bytes / (total_pkts + 1e-5)"
+      },
+      {
+        "name": "pkt_len_ratio",
+        "formula": "fwd_mean_pkt_len / (bwd_mean_pkt_len + 1e-5)"
+      }
+    ]
+  },
+  "training_configuration": {
+    "dataset_provenance": "CIC-IoT-2023 derived Biflow Traffic Benchmark",
+    "total_biflows": 259379,
+    "train_samples": 181565,
+    "validation_samples": 38907,
+    "test_samples": 38907,
+    "split_ratio": "70/15/15 Stratified Multi-Class Partition",
+    "split_random_state": 42
+  },
+  "selected_hyperparameters": {
+    "n_estimators": 150,
+    "min_samples_split": 5,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt",
+    "max_depth": null,
+    "class_weight": "balanced"
+  },
+  "evaluation_metrics": {
+    "holdout_test_accuracy": 0.999383,
+    "holdout_precision": 0.998873,
+    "holdout_recall": 0.998873,
+    "holdout_f1_score": 0.998873,
+    "false_positive_rate": 0.000425,
+    "false_negative_rate": 0.001127,
+    "roc_auc": 0.999997,
+    "pr_auc": 0.999992,
+    "confusion_matrix": {
+      "true_negative": 28245,
+      "false_positive": 12,
+      "false_negative": 12,
+      "true_positive": 10638
+    },
+    "inference_latency_us_per_flow": 5.03,
+    "throughput_flows_per_sec": 198699.0
+  },
+  "operational_thresholds": {
+    "default_threshold": 0.5,
+    "high_security_threshold": 0.3,
+    "low_false_alarm_threshold": 0.7,
+    "severity_tiers": {
+      "CRITICAL": "P(Attack) >= 0.90",
+      "HIGH": "0.70 <= P(Attack) < 0.90",
+      "MEDIUM": "threshold <= P(Attack) < 0.70",
+      "ELEVATED": "0.20 <= P(Attack) < threshold",
+      "BENIGN": "P(Attack) < 0.20"
+    }
+  },
+  "shap_configuration": {
+    "explainer_type": "TreeExplainer",
+    "traversal_complexity": "O(T * L * D^2)",
+    "additivity_tolerance": 1e-12,
+    "feature_attribution_class": "Class 1 (Malicious Attack)",
+    "top_k_briefing_features": 5
+  },
+  "system_dependencies": {
+    "python": "3.14.0",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "joblib": "1.5.3",
+    "numpy": "2.4.0",
+    "pandas": "2.3.3",
+    "sklearn": "1.8.0",
+    "shap": "0.54.1",
+    "scapy": "2.8.0",
+    "fastapi": "0.162.0",
+    "streamlit": "1.66.1"
+  }
+}

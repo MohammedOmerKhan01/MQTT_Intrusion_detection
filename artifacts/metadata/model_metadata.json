@@ -1,0 +1,297 @@
+{
+  "model_type": "RandomForestClassifier",
+  "version": "1.0.0",
+  "timestamp": "2026-10-25T22:05:41Z",
+  "training_samples": 207503,
+  "test_samples": 51876,
+  "fit_time_seconds": 4.15,
+  "inference_time_seconds": 0.2365,
+  "metrics": {
+    "accuracy": 0.99938,
+    "precision": 0.99901,
+    "recall": 0.99873,
+    "f1_score": 0.99887,
+    "roc_auc": 1.0,
+    "confusion_matrix": {
+      "true_negative": 37662,
+      "false_positive": 14,
+      "false_negative": 18,
+      "true_positive": 14182
+    }
+  },
+  "feature_columns": [
+    "prt_src",
+    "prt_dst",
+    "proto",
+    "fwd_num_pkts",
+    "bwd_num_pkts",
+    "fwd_mean_iat",
+    "bwd_mean_iat",
+    "fwd_std_iat",
+    "bwd_std_iat",
+    "fwd_min_iat",
+    "bwd_min_iat",
+    "fwd_max_iat",
+    "bwd_max_iat",
+    "fwd_mean_pkt_len",
+    "bwd_mean_pkt_len",
+    "fwd_std_pkt_len",
+    "bwd_std_pkt_len",
+    "fwd_min_pkt_len",
+    "bwd_min_pkt_len",
+    "fwd_max_pkt_len",
+    "bwd_max_pkt_len",
+    "fwd_num_bytes",
+    "bwd_num_bytes",
+    "fwd_num_psh_flags",
+    "bwd_num_psh_flags",
+    "fwd_num_rst_flags",
+    "bwd_num_rst_flags",
+    "fwd_num_urg_flags",
+    "bwd_num_urg_flags"
+  ],
+  "feature_importances": {
+    "bwd_min_pkt_len": 0.218731,
+    "fwd_mean_pkt_len": 0.097219,
+    "fwd_num_bytes": 0.095697,
+    "bwd_num_pkts": 0.085497,
+    "bwd_max_pkt_len": 0.083234,
+    "bwd_num_bytes": 0.063966,
+    "fwd_min_pkt_len": 0.056745,
+    "fwd_max_pkt_len": 0.042157,
+    "bwd_mean_pkt_len": 0.040978,
+    "fwd_num_pkts": 0.039352,
+    "bwd_num_psh_flags": 0.031974,
+    "fwd_num_psh_flags": 0.02657,
+    "fwd_std_pkt_len": 0.026242,
+    "fwd_mean_iat": 0.019107,
+    "bwd_min_iat": 0.017837,
+    "bwd_std_iat": 0.014961,
+    "prt_dst": 0.012945,
+    "fwd_min_iat": 0.009667,
+    "bwd_num_rst_flags": 0.008204,
+    "fwd_max_iat": 0.006046,
+    "bwd_mean_iat": 0.000879,
+    "fwd_std_iat": 0.000826,
+    "bwd_max_iat": 0.000794,
+    "prt_src": 0.000309,
+    "proto": 4.4e-05,
+    "bwd_std_pkt_len": 2.2e-05,
+    "fwd_num_rst_flags": 0.0,
+    "fwd_num_urg_flags": 0.0,
+    "bwd_num_urg_flags": 0.0
+  },
+  "baseline_stats": {
+    "prt_src": {
+      "mean": 46453.8502,
+      "std": 8526.5158,
+      "median": 45896.0,
+      "min": 68.0,
+      "max": 60998.0
+    },
+    "prt_dst": {
+      "mean": 1729.8542,
+      "std": 506.7365,
+      "median": 1883.0,
+      "min": 53.0,
+      "max": 1883.0
+    },
+    "proto": {
+      "mean": 6.9207,
+      "std": 3.0464,
+      "median": 6.0,
+      "min": 6.0,
+      "max": 17.0
+    },
+    "fwd_num_pkts": {
+      "mean": 7.5329,
+      "std": 236.3088,
+      "median": 7.0,
+      "min": 1.0,
+      "max": 73552.0
+    },
+    "bwd_num_pkts": {
+      "mean": 5.7003,
+      "std": 236.3136,
+      "median": 5.0,
+      "min": 1.0,
+      "max": 73552.0
+    },
+    "fwd_mean_iat": {
+      "mean": 4.2835,
+      "std": 107.9469,
+      "median": 0.0004,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "bwd_mean_iat": {
+      "mean": 4.2835,
+      "std": 107.9469,
+      "median": 0.0004,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "fwd_std_iat": {
+      "mean": 0.8245,
+      "std": 34.2897,
+      "median": 0.0004,
+      "min": 0.0,
+      "max": 2871.3111
+    },
+    "bwd_std_iat": {
+      "mean": 0.8246,
+      "std": 34.2897,
+      "median": 0.0004,
+      "min": 0.0,
+      "max": 2871.3111
+    },
+    "fwd_min_iat": {
+      "mean": 3.575,
+      "std": 102.9633,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "bwd_min_iat": {
+      "mean": 3.575,
+      "std": 102.9633,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "fwd_max_iat": {
+      "mean": 5.3602,
+      "std": 127.255,
+      "median": 0.001,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "bwd_max_iat": {
+      "mean": 5.3602,
+      "std": 127.255,
+      "median": 0.001,
+      "min": 0.0,
+      "max": 5995.7162
+    },
+    "fwd_mean_pkt_len": {
+      "mean": 67.6116,
+      "std": 8.9899,
+      "median": 66.0,
+      "min": 60.0,
+      "max": 1344.0
+    },
+    "bwd_mean_pkt_len": {
+      "mean": 55.8234,
+      "std": 8.8452,
+      "median": 54.4,
+      "min": 54.0,
+      "max": 1344.0
+    },
+    "fwd_std_pkt_len": {
+      "mean": 19.9509,
+      "std": 8.7658,
+      "median": 17.2035,
+      "min": 0.0,
+      "max": 40.706
+    },
+    "bwd_std_pkt_len": {
+      "mean": 2.9443,
+      "std": 0.9075,
+      "median": 3.2,
+      "min": 0.0,
+      "max": 15.5
+    },
+    "fwd_min_pkt_len": {
+      "mean": 54.0874,
+      "std": 10.234,
+      "median": 52.0,
+      "min": 52.0,
+      "max": 1344.0
+    },
+    "bwd_min_pkt_len": {
+      "mean": 53.6122,
+      "std": 9.1989,
+      "median": 52.0,
+      "min": 52.0,
+      "max": 1344.0
+    },
+    "fwd_max_pkt_len": {
+      "mean": 108.9042,
+      "std": 21.2837,
+      "median": 102.0,
+      "min": 60.0,
+      "max": 1344.0
+    },
+    "bwd_max_pkt_len": {
+      "mean": 60.9673,
+      "std": 8.1492,
+      "median": 60.0,
+      "min": 60.0,
+      "max": 1344.0
+    },
+    "fwd_num_bytes": {
+      "mean": 1742.9594,
+      "std": 317627.1887,
+      "median": 445.0,
+      "min": 60.0,
+      "max": 98853888.0
+    },
+    "bwd_num_bytes": {
+      "mean": 1563.5094,
+      "std": 317627.9132,
+      "median": 272.0,
+      "min": 60.0,
+      "max": 98853888.0
+    },
+    "fwd_num_psh_flags": {
+      "mean": 2.749,
+      "std": 0.8309,
+      "median": 3.0,
+      "min": 0.0,
+      "max": 4.0
+    },
+    "bwd_num_psh_flags": {
+      "mean": 0.9163,
+      "std": 0.2769,
+      "median": 1.0,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "fwd_num_rst_flags": {
+      "mean": 0.0,
+      "std": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "bwd_num_rst_flags": {
+      "mean": 0.0,
+      "std": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "fwd_num_urg_flags": {
+      "mean": 0.0,
+      "std": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    },
+    "bwd_num_urg_flags": {
+      "mean": 0.0,
+      "std": 0.0,
+      "median": 0.0,
+      "min": 0.0,
+      "max": 0.0
+    }
+  },
+  "hyperparameters": {
+    "n_estimators": 50,
+    "max_depth": 15,
+    "min_samples_split": 5,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt",
+    "random_state": 42
+  }
+}

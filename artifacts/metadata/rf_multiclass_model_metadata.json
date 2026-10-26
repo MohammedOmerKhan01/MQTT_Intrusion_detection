@@ -1,0 +1,152 @@
+{
+  "model_name": "rf_multiclass_model",
+  "model_class": "RandomForestClassifier",
+  "timestamp": "2026-10-26T10:26:45Z",
+  "feature_count": 34,
+  "feature_names": [
+    "bwd_max_iat",
+    "bwd_max_pkt_len",
+    "bwd_mean_iat",
+    "bwd_mean_pkt_len",
+    "bwd_min_iat",
+    "bwd_min_pkt_len",
+    "bwd_num_bytes",
+    "bwd_num_pkts",
+    "bwd_num_psh_flags",
+    "bwd_num_rst_flags",
+    "bwd_num_urg_flags",
+    "bwd_std_iat",
+    "bwd_std_pkt_len",
+    "fwd_max_iat",
+    "fwd_max_pkt_len",
+    "fwd_mean_iat",
+    "fwd_mean_pkt_len",
+    "fwd_min_iat",
+    "fwd_min_pkt_len",
+    "fwd_num_bytes",
+    "fwd_num_pkts",
+    "fwd_num_psh_flags",
+    "fwd_num_rst_flags",
+    "fwd_num_urg_flags",
+    "fwd_std_iat",
+    "fwd_std_pkt_len",
+    "proto",
+    "prt_dst",
+    "pkt_ratio",
+    "total_pkts",
+    "byte_ratio",
+    "total_bytes",
+    "bytes_per_pkt",
+    "pkt_len_ratio"
+  ],
+  "hyperparameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "class_weight": null,
+    "criterion": "gini",
+    "max_depth": 15,
+    "max_features": "sqrt",
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 50,
+    "n_jobs": -1,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "metrics": {
+    "model_name": "RandomForest_Multiclass",
+    "sample_count": 38907,
+    "macro_f1": 0.998751,
+    "weighted_f1": 0.999357,
+    "classes": [
+      "mqtt_bruteforce",
+      "normal",
+      "scan_A",
+      "scan_sU",
+      "sparta"
+    ],
+    "per_class": {
+      "mqtt_bruteforce": {
+        "precision": 0.994952,
+        "recall": 0.994039,
+        "f1_score": 0.994495,
+        "support": 2181
+      },
+      "normal": {
+        "precision": 0.99954,
+        "recall": 0.999611,
+        "f1_score": 0.999575,
+        "support": 28257
+      },
+      "scan_A": {
+        "precision": 0.999665,
+        "recall": 1.0,
+        "f1_score": 0.999833,
+        "support": 2986
+      },
+      "scan_sU": {
+        "precision": 1.0,
+        "recall": 0.999703,
+        "f1_score": 0.999851,
+        "support": 3365
+      },
+      "sparta": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "support": 2118
+      }
+    },
+    "confusion_matrix": [
+      [
+        2168,
+        13,
+        0,
+        0,
+        0
+      ],
+      [
+        11,
+        28246,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2986,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        3364,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        2118
+      ]
+    ],
+    "performance": {
+      "total_inference_time_sec": 0.1552,
+      "throughput_flows_per_sec": 250750.0
+    }
+  },
+  "extra": {
+    "fit_time_seconds": 3.59
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "validation_status": "PASSED",
+  "tested_pcap": "scan_A.pcap",
+  "packets_processed": 5000,
+  "flows_assembled": 734,
+  "schema_conformity": true,
+  "feature_comparison": {
+    "fwd_mean_pkt_len": {
+      "extracted_mean": 55.36,
+      "baseline_mean": 49.53,
+      "extracted_median": 44.0,
+      "baseline_median": 44.0,
+      "mean_relative_diff_pct": 11.76
+    },
+    "bwd_mean_pkt_len": {
+      "extracted_mean": 47.43,
+      "baseline_mean": 43.76,
+      "extracted_median": 40.0,
+      "baseline_median": 40.0,
+      "mean_relative_diff_pct": 8.39
+    },
+    "fwd_num_pkts": {
+      "extracted_mean": 3.16,
+      "baseline_mean": 2.47,
+      "extracted_median": 1.0,
+      "baseline_median": 1.0,
+      "mean_relative_diff_pct": 27.96
+    },
+    "bwd_num_pkts": {
+      "extracted_mean": 1.87,
+      "baseline_mean": 2.06,
+      "extracted_median": 1.0,
+      "baseline_median": 1.0,
+      "mean_relative_diff_pct": 9.0
+    },
+    "fwd_num_psh_flags": {
+      "extracted_mean": 1.29,
+      "baseline_mean": 0.63,
+      "extracted_median": 0.0,
+      "baseline_median": 0.0,
+      "mean_relative_diff_pct": 105.61
+    },
+    "fwd_num_rst_flags": {
+      "extracted_mean": 0.0,
+      "baseline_mean": 0.0,
+      "extracted_median": 0.0,
+      "baseline_median": 0.0,
+      "mean_relative_diff_pct": 0.0
+    }
+  },
+  "configuration": {
+    "extractor_tool": "scapy",
+    "scapy_version": "2.8.0",
+    "length_basis": "ip_total_length (pkt[IP].len)",
+    "inactivity_timeout_seconds": 120.0,
+    "require_bidirectional": true
+  },
+  "known_limitations": [
+    "Scapy is written in pure Python; streaming 4+ GB PCAP files is CPU/IO intensive compared to native C tools like TShark or CICFlowMeter.",
+    "Minor timing deltas exist if baseline extractor used microsecond vs millisecond precision rounding.",
+    "Flow timeout boundary differences: flows active at the packet limit cut-off are finalized during flush."
+  ]
+}

@@ -1,0 +1,35 @@
+# Core Data Science & Numerical Computing
+numpy>=1.26.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Machine Learning & Evaluation
+scikit-learn>=1.4.0
+imbalanced-learn>=0.12.0
+joblib>=1.3.0
+
+# Explainable AI
+shap>=0.45.0
+
+# Visualization
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Application & UI
+streamlit>=1.35.0
+fastapi>=0.111.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+
+# Storage & Serialization
+pyarrow>=15.0.0
+
+# Configuration & Utilities
+pyyaml>=6.0.0
+tqdm>=4.66.0
+
+# Network Packet Processing (Optional for Stage 3)
+scapy>=2.5.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0

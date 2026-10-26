@@ -1,0 +1,23 @@
+# Bytecode and runtime artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.git/
+.gitignore
+
+# Large raw dataset archives (not needed in container runtime)
+*.zip
+*.pcap
+*.pcapng
+data/raw/
+data/interim/
+
+# Environment files
+.env
+venv/
+.venv/
+
+# Documentation source logs
+.system_generated/

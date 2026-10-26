@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  nids-api:
+    build: .
+    container_name: ml-nids-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+    command: ["uvicorn", "src.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8000/api/status\")'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nids-dashboard:
+    build: .
+    container_name: ml-nids-dashboard
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    environment:
+      - PYTHONPATH=/app
+    command: ["python", "-m", "streamlit", "run", "src/app/dashboard.py", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true"]
+    depends_on:
+      - nids-api

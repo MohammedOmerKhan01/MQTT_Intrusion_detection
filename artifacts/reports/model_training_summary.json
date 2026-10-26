@@ -1,0 +1,143 @@
+{
+  "baseline_binary": {
+    "model_name": "Baseline_RF",
+    "sample_count": 38907,
+    "accuracy": 0.999409,
+    "precision": 0.998967,
+    "recall": 0.998873,
+    "f1_score": 0.99892,
+    "false_positive_rate": 0.000389,
+    "false_negative_rate": 0.001127,
+    "roc_auc": 0.999997,
+    "pr_auc": 0.999991,
+    "confusion_matrix": {
+      "true_negative": 28246,
+      "false_positive": 11,
+      "false_negative": 12,
+      "true_positive": 10638
+    },
+    "performance": {
+      "total_inference_time_sec": 0.1166,
+      "latency_us_per_flow": 3.0,
+      "throughput_flows_per_sec": 333714.0
+    }
+  },
+  "tuned_binary": {
+    "model_name": "Tuned_RF",
+    "sample_count": 38907,
+    "accuracy": 0.999383,
+    "precision": 0.998873,
+    "recall": 0.998873,
+    "f1_score": 0.998873,
+    "false_positive_rate": 0.000425,
+    "false_negative_rate": 0.001127,
+    "roc_auc": 0.999997,
+    "pr_auc": 0.999992,
+    "confusion_matrix": {
+      "true_negative": 28245,
+      "false_positive": 12,
+      "false_negative": 12,
+      "true_positive": 10638
+    },
+    "performance": {
+      "total_inference_time_sec": 0.1958,
+      "latency_us_per_flow": 5.03,
+      "throughput_flows_per_sec": 198699.0
+    }
+  },
+  "multiclass": {
+    "model_name": "RandomForest_Multiclass",
+    "sample_count": 38907,
+    "macro_f1": 0.998751,
+    "weighted_f1": 0.999357,
+    "classes": [
+      "mqtt_bruteforce",
+      "normal",
+      "scan_A",
+      "scan_sU",
+      "sparta"
+    ],
+    "per_class": {
+      "mqtt_bruteforce": {
+        "precision": 0.994952,
+        "recall": 0.994039,
+        "f1_score": 0.994495,
+        "support": 2181
+      },
+      "normal": {
+        "precision": 0.99954,
+        "recall": 0.999611,
+        "f1_score": 0.999575,
+        "support": 28257
+      },
+      "scan_A": {
+        "precision": 0.999665,
+        "recall": 1.0,
+        "f1_score": 0.999833,
+        "support": 2986
+      },
+      "scan_sU": {
+        "precision": 1.0,
+        "recall": 0.999703,
+        "f1_score": 0.999851,
+        "support": 3365
+      },
+      "sparta": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1_score": 1.0,
+        "support": 2118
+      }
+    },
+    "confusion_matrix": [
+      [
+        2168,
+        13,
+        0,
+        0,
+        0
+      ],
+      [
+        11,
+        28246,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        2986,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        1,
+        3364,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        2118
+      ]
+    ],
+    "performance": {
+      "total_inference_time_sec": 0.1552,
+      "throughput_flows_per_sec": 250750.0
+    }
+  },
+  "best_hyperparameters": {
+    "n_estimators": 150,
+    "min_samples_split": 5,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt",
+    "max_depth": null,
+    "class_weight": "balanced"
+  },
+  "feature_count": 34
+}

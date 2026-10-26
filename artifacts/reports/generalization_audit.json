@@ -1,0 +1,51 @@
+{
+  "train_val_gap": {
+    "train_accuracy": 0.999791,
+    "val_accuracy": 0.999383,
+    "accuracy_gap": 0.000408,
+    "train_f1": 0.999618,
+    "val_f1": 0.998873,
+    "f1_gap": 0.000745,
+    "verdict": "ACCEPTABLE_GENERALIZATION"
+  },
+  "ood_zero_day_generalization": {
+    "holdout_scenario": "sparta",
+    "train_samples": 168061,
+    "test_samples": 91318,
+    "accuracy": 0.999803,
+    "precision": 0.998726,
+    "recall": 1.0,
+    "f1_score": 0.999363,
+    "false_positive_rate": 0.000233,
+    "false_negative_rate": 0.0,
+    "roc_auc": 0.999806,
+    "confusion_matrix": {
+      "tn": 77184,
+      "fp": 18,
+      "fn": 0,
+      "tp": 14116
+    }
+  },
+  "port_ablation_study": {
+    "model_type": "Pure_Behavioral_No_Ports",
+    "feature_count": 33,
+    "accuracy": 0.999512,
+    "precision": 0.999342,
+    "recall": 0.998873,
+    "f1_score": 0.999108,
+    "false_positive_rate": 0.000248,
+    "false_negative_rate": 0.001127,
+    "roc_auc": 0.999997,
+    "confusion_matrix": {
+      "tn": 28250,
+      "fp": 7,
+      "fn": 12,
+      "tp": 10638
+    }
+  },
+  "figures_generated": [
+    "train_val_gap.png",
+    "ood_scenario_evaluation.png",
+    "port_ablation_comparison.png"
+  ]
+}

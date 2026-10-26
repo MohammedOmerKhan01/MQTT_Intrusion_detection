@@ -1,0 +1,191 @@
+{
+  "explainer_type": "TreeExplainer",
+  "shap_version": "0.54.1",
+  "explained_samples": 1000,
+  "base_value_attack": 0.500066,
+  "top_features": [
+    {
+      "feature": "byte_ratio",
+      "mean_abs_shap": 0.05855267807023368
+    },
+    {
+      "feature": "pkt_ratio",
+      "mean_abs_shap": 0.05555642020296601
+    },
+    {
+      "feature": "bytes_per_pkt",
+      "mean_abs_shap": 0.052884890238313866
+    },
+    {
+      "feature": "pkt_len_ratio",
+      "mean_abs_shap": 0.0510765818346825
+    },
+    {
+      "feature": "fwd_mean_pkt_len",
+      "mean_abs_shap": 0.04344825777505429
+    },
+    {
+      "feature": "bwd_min_pkt_len",
+      "mean_abs_shap": 0.03190094560271252
+    },
+    {
+      "feature": "fwd_max_pkt_len",
+      "mean_abs_shap": 0.02623062058337311
+    },
+    {
+      "feature": "bwd_max_pkt_len",
+      "mean_abs_shap": 0.019303747596625263
+    },
+    {
+      "feature": "bwd_num_bytes",
+      "mean_abs_shap": 0.019208136795304136
+    },
+    {
+      "feature": "fwd_num_bytes",
+      "mean_abs_shap": 0.01631759549498989
+    }
+  ],
+  "all_rankings": [
+    {
+      "feature": "byte_ratio",
+      "mean_abs_shap": 0.05855267807023368
+    },
+    {
+      "feature": "pkt_ratio",
+      "mean_abs_shap": 0.05555642020296601
+    },
+    {
+      "feature": "bytes_per_pkt",
+      "mean_abs_shap": 0.052884890238313866
+    },
+    {
+      "feature": "pkt_len_ratio",
+      "mean_abs_shap": 0.0510765818346825
+    },
+    {
+      "feature": "fwd_mean_pkt_len",
+      "mean_abs_shap": 0.04344825777505429
+    },
+    {
+      "feature": "bwd_min_pkt_len",
+      "mean_abs_shap": 0.03190094560271252
+    },
+    {
+      "feature": "fwd_max_pkt_len",
+      "mean_abs_shap": 0.02623062058337311
+    },
+    {
+      "feature": "bwd_max_pkt_len",
+      "mean_abs_shap": 0.019303747596625263
+    },
+    {
+      "feature": "bwd_num_bytes",
+      "mean_abs_shap": 0.019208136795304136
+    },
+    {
+      "feature": "fwd_num_bytes",
+      "mean_abs_shap": 0.01631759549498989
+    },
+    {
+      "feature": "bwd_min_iat",
+      "mean_abs_shap": 0.013060464011920096
+    },
+    {
+      "feature": "bwd_num_pkts",
+      "mean_abs_shap": 0.012997353085969244
+    },
+    {
+      "feature": "total_bytes",
+      "mean_abs_shap": 0.011538630944529529
+    },
+    {
+      "feature": "prt_dst",
+      "mean_abs_shap": 0.010580169952505662
+    },
+    {
+      "feature": "fwd_std_pkt_len",
+      "mean_abs_shap": 0.010579531714294542
+    },
+    {
+      "feature": "fwd_min_pkt_len",
+      "mean_abs_shap": 0.010337977847897249
+    },
+    {
+      "feature": "fwd_num_psh_flags",
+      "mean_abs_shap": 0.009276842908910682
+    },
+    {
+      "feature": "fwd_min_iat",
+      "mean_abs_shap": 0.009195945643242498
+    },
+    {
+      "feature": "fwd_mean_iat",
+      "mean_abs_shap": 0.00872322391737433
+    },
+    {
+      "feature": "bwd_mean_pkt_len",
+      "mean_abs_shap": 0.007714863350227094
+    },
+    {
+      "feature": "fwd_num_pkts",
+      "mean_abs_shap": 0.0073315379580287535
+    },
+    {
+      "feature": "bwd_mean_iat",
+      "mean_abs_shap": 0.006781437486646376
+    },
+    {
+      "feature": "fwd_max_iat",
+      "mean_abs_shap": 0.006496605989099178
+    },
+    {
+      "feature": "bwd_num_psh_flags",
+      "mean_abs_shap": 0.006086920830224461
+    },
+    {
+      "feature": "total_pkts",
+      "mean_abs_shap": 0.005547045941614387
+    },
+    {
+      "feature": "bwd_max_iat",
+      "mean_abs_shap": 0.005239634667851547
+    },
+    {
+      "feature": "bwd_std_iat",
+      "mean_abs_shap": 0.005161695278561482
+    },
+    {
+      "feature": "fwd_std_iat",
+      "mean_abs_shap": 0.0032084559332885452
+    },
+    {
+      "feature": "bwd_num_rst_flags",
+      "mean_abs_shap": 0.002200957920921132
+    },
+    {
+      "feature": "proto",
+      "mean_abs_shap": 0.0018437525066794217
+    },
+    {
+      "feature": "bwd_std_pkt_len",
+      "mean_abs_shap": 0.0007889702414150462
+    },
+    {
+      "feature": "fwd_num_rst_flags",
+      "mean_abs_shap": 6.742369978166495e-18
+    },
+    {
+      "feature": "fwd_num_urg_flags",
+      "mean_abs_shap": 1.6260332669763193e-20
+    },
+    {
+      "feature": "bwd_num_urg_flags",
+      "mean_abs_shap": 0.0
+    }
+  ],
+  "figures_generated": [
+    "shap_global_bar.png",
+    "shap_summary_beeswarm.png",
+    "feature_importance_vs_shap.png"
+  ]
+}
