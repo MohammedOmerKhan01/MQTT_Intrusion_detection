@@ -228,20 +228,92 @@
         <!-- TAB 2: DATASET INTELLIGENCE                -->
         <!-- ========================================== -->
         <section id="panel-dataset" class="hidden space-y-6">
+
+            <!-- Interactive Dataset Ingestion & Live Analysis Header -->
+            <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-800 gap-3">
+                    <div>
+                        <h2 class="text-base font-semibold text-white flex items-center gap-2">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            Dataset Intelligence & Dynamic Visual Analysis
+                        </h2>
+                        <p class="text-xs text-gray-400">Load the benchmark flow dataset or upload custom CSV features to instantly compute schema telemetry and generate dynamic analysis charts.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="loadSampleFlowsDataset()" class="px-3 py-1.5 bg-gradient-to-r from-cyan-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-black font-semibold rounded text-xs transition flex items-center gap-1.5 shadow">
+                            ⚡ Analyze Sample Flows (sample_flows.csv)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+                    <div class="border border-dashed border-gray-700 rounded-lg p-3 bg-gray-800/40 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="text-gray-300 font-medium block">Upload Custom CSV Dataset:</span>
+                            <span class="text-gray-500 text-[11px]">Validates 34 flow features dynamically</span>
+                        </div>
+                        <input type="file" id="datasetUploadInput" accept=".csv" onchange="handleDatasetFileSelected()" class="text-xs text-gray-400 max-w-[200px]">
+                    </div>
+                    <div id="datasetAnalysisStatus" class="p-3 rounded bg-gray-800/60 border border-gray-700/60 flex items-center gap-2 text-cyan-300 text-xs font-mono">
+                        <span>ℹ️ Ready: Click <b>Analyze Sample Flows</b> or upload a CSV above to generate dynamic visualizations.</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Metrics Row (Updated when dataset analyzed) -->
+                <div id="datasetMetricRow" class="hidden grid grid-cols-2 md:grid-cols-5 gap-3 pt-2">
+                    <div class="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                        <span class="text-gray-400 text-[10px] uppercase font-mono block">Analyzed Flows</span>
+                        <span id="dsTotalFlows" class="text-xl font-bold text-white font-mono">-</span>
+                    </div>
+                    <div class="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                        <span class="text-gray-400 text-[10px] uppercase font-mono block">Normal / Benign</span>
+                        <span id="dsNormalFlows" class="text-xl font-bold text-emerald-400 font-mono">-</span>
+                    </div>
+                    <div class="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                        <span class="text-gray-400 text-[10px] uppercase font-mono block">Flagged Threats</span>
+                        <span id="dsAlertFlows" class="text-xl font-bold text-red-400 font-mono">-</span>
+                    </div>
+                    <div class="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                        <span class="text-gray-400 text-[10px] uppercase font-mono block">Alert Rate</span>
+                        <span id="dsAlertRate" class="text-xl font-bold text-cyan-400 font-mono">-</span>
+                    </div>
+                    <div class="bg-gray-800/50 border border-gray-700/50 p-3 rounded-lg">
+                        <span class="text-gray-400 text-[10px] uppercase font-mono block">Dominant Port</span>
+                        <span id="dsTopPort" class="text-xl font-bold text-yellow-400 font-mono">-</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-6">
-                    <h3 class="text-base font-semibold text-white mb-2">Class Distribution Across Biflow Scenarios</h3>
-                    <p class="text-xs text-gray-400 mb-4">Measured proportion of Benign (0) vs Attack (1) flows in each capture scenario.</p>
+                    <h3 id="dsChart1Title" class="text-base font-semibold text-white mb-2">Class Distribution & Threat Subtypes</h3>
+                    <p id="dsChart1Subtitle" class="text-xs text-gray-400 mb-4">Measured proportion of Benign (0) vs Attack (1) flows in the analyzed dataset.</p>
                     <div class="h-64">
                         <canvas id="scenarioChart"></canvas>
                     </div>
                 </div>
 
                 <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-6">
-                    <h3 class="text-base font-semibold text-white mb-2">Transport Protocol Distribution</h3>
-                    <p class="text-xs text-gray-400 mb-4">Traffic composition by protocol number (TCP=6, UDP=17).</p>
+                    <h3 id="dsChart2Title" class="text-base font-semibold text-white mb-2">Transport Protocol & Service Telemetry</h3>
+                    <p id="dsChart2Subtitle" class="text-xs text-gray-400 mb-4">Traffic composition by protocol number and destination ports.</p>
                     <div class="h-64 flex items-center justify-center">
                         <canvas id="protoChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-6">
+                    <h3 class="text-base font-semibold text-white mb-2">Alert Severity Tiers</h3>
+                    <p class="text-xs text-gray-400 mb-4">Risk stratification across Critical, High, Medium, Elevated, and Benign.</p>
+                    <div class="h-64">
+                        <canvas id="severityChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-gray-900/70 border border-gray-800 rounded-xl p-6">
+                    <h3 class="text-base font-semibold text-white mb-2">Threat Probability Density P(Attack)</h3>
+                    <p class="text-xs text-gray-400 mb-4">Model confidence distribution spectrum with decision threshold cutoff.</p>
+                    <div class="h-64">
+                        <canvas id="probChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -432,6 +504,40 @@
                         <button onclick="switchTab('xai')" class="w-full py-2 bg-cyan-600 hover:bg-cyan-500 text-black font-semibold rounded-lg text-xs transition">
                             Inspect SHAP XAI Explanations &rarr;
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Ingestion Analytics Charts (Appears when file uploaded or tested) -->
+            <div id="detectionChartsContainer" class="hidden bg-gray-900/70 border border-gray-800 rounded-xl p-6 space-y-4">
+                <h3 class="text-base font-semibold text-white flex items-center justify-between">
+                    <span>Threat Ingestion Telemetry & Diagrams</span>
+                    <span id="detChartsSummary" class="text-xs text-cyan-400 font-mono"></span>
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-800/40 border border-gray-700/50 p-4 rounded-lg">
+                        <p class="text-xs text-gray-300 font-semibold mb-2">Verdict Distribution</p>
+                        <div class="h-44 flex items-center justify-center">
+                            <canvas id="detVerdictChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/50 p-4 rounded-lg">
+                        <p class="text-xs text-gray-300 font-semibold mb-2">Severity Breakdown</p>
+                        <div class="h-44">
+                            <canvas id="detSeverityChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/50 p-4 rounded-lg">
+                        <p class="text-xs text-gray-300 font-semibold mb-2">Attack Subtypes</p>
+                        <div class="h-44">
+                            <canvas id="detSubtypeChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800/40 border border-gray-700/50 p-4 rounded-lg">
+                        <p class="text-xs text-gray-300 font-semibold mb-2">P(Attack) Confidence</p>
+                        <div class="h-44">
+                            <canvas id="detProbChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -788,6 +894,7 @@
                 const data = await res.json();
                 statusDiv.className = "p-3 rounded text-xs font-mono bg-emerald-950/60 border border-emerald-800 text-emerald-300 block";
                 statusDiv.innerText = `Evaluated ${data.total_flows} flows. Flagged ${data.total_alerts} alerts (${data.alert_rate_percentage}% alert rate).`;
+                renderDetectionCharts(data);
                 populateFlowTable(data.preview_records);
             } catch (e) {
                 statusDiv.className = "p-3 rounded text-xs font-mono bg-red-950/60 border border-red-800 text-red-300 block";
@@ -817,7 +924,8 @@
                 if (!res.ok) throw new Error(await res.text());
                 const data = await res.json();
                 statusDiv.className = "p-3 rounded text-xs font-mono bg-emerald-950/60 border border-emerald-800 text-emerald-300 block";
-                statusDiv.innerText = `Dissected ${data.flows_extracted} sessions. Flagged ${data.total_alerts} alerts (${data.alert_rate_percentage}%).`;
+                statusDiv.innerText = `Dissected ${data.flows_extracted || data.total_flows} sessions. Flagged ${data.total_alerts} alerts (${data.alert_rate_percentage}%).`;
+                renderDetectionCharts(data);
                 populateFlowTable(data.preview_records);
             } catch (e) {
                 statusDiv.className = "p-3 rounded text-xs font-mono bg-red-950/60 border border-red-800 text-red-300 block";
@@ -987,47 +1095,322 @@
             }
         }
 
+        // Dynamic Dataset Analysis Loader
+        async function loadSampleFlowsDataset() {
+            const statusDiv = document.getElementById('datasetAnalysisStatus');
+            statusDiv.className = "p-3 rounded bg-cyan-950/60 border border-cyan-800 text-cyan-300 flex items-center gap-2 text-xs font-mono";
+            statusDiv.innerHTML = "<span>Analyzing bundled <b>sample_flows.csv</b> dataset through Random Forest pipeline...</span>";
+
+            try {
+                const res = await fetch('/api/sample_flows');
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                statusDiv.className = "p-3 rounded bg-emerald-950/60 border border-emerald-800 text-emerald-300 flex items-center gap-2 text-xs font-mono";
+                statusDiv.innerHTML = `<span>Evaluated <b>${data.total_flows}</b> flows from ${data.filename}. Generated dynamic analytical diagrams.</span>`;
+                updateDatasetDashboard(data);
+            } catch (e) {
+                statusDiv.className = "p-3 rounded bg-red-950/60 border border-red-800 text-red-300 flex items-center gap-2 text-xs font-mono";
+                statusDiv.innerHTML = `<span>Error analyzing dataset: ${e.message}</span>`;
+            }
+        }
+
+        async function handleDatasetFileSelected() {
+            const input = document.getElementById('datasetUploadInput');
+            if (!input.files.length) return;
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("threshold", 0.50);
+
+            const statusDiv = document.getElementById('datasetAnalysisStatus');
+            statusDiv.className = "p-3 rounded bg-cyan-950/60 border border-cyan-800 text-cyan-300 flex items-center gap-2 text-xs font-mono";
+            statusDiv.innerHTML = `<span>Evaluating <b>${file.name}</b> features through Random Forest pipeline...</span>`;
+
+            try {
+                const res = await fetch('/api/upload_csv', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                statusDiv.className = "p-3 rounded bg-emerald-950/60 border border-emerald-800 text-emerald-300 flex items-center gap-2 text-xs font-mono";
+                statusDiv.innerHTML = `<span>Successfully analyzed <b>${data.total_flows}</b> flows from ${file.name}. Updated dynamic charts.</span>`;
+                updateDatasetDashboard(data);
+            } catch (e) {
+                statusDiv.className = "p-3 rounded bg-red-950/60 border border-red-800 text-red-300 flex items-center gap-2 text-xs font-mono";
+                statusDiv.innerHTML = `<span>Error analyzing custom dataset: ${e.message}</span>`;
+            }
+        }
+
         // Charts for Dataset Intelligence Tab
         let scenarioChartInstance = null;
         let protoChartInstance = null;
-        function renderDatasetCharts() {
-            if (scenarioChartInstance) return;
+        let severityChartInstance = null;
+        let probChartInstance = null;
 
+        function updateDatasetDashboard(data) {
+            // Update Metric Cards
+            const metricRow = document.getElementById('datasetMetricRow');
+            if (metricRow) {
+                metricRow.classList.remove('hidden');
+                document.getElementById('dsTotalFlows').innerText = (data.total_flows || 0).toLocaleString();
+                document.getElementById('dsNormalFlows').innerText = (data.normal_flows !== undefined ? data.normal_flows : (data.total_flows - data.total_alerts)).toLocaleString();
+                document.getElementById('dsAlertFlows').innerText = (data.total_alerts || 0).toLocaleString();
+                document.getElementById('dsAlertRate').innerText = `${data.alert_rate_percentage || 0}%`;
+
+                // Top Port
+                const portKeys = Object.keys(data.port_counts || {});
+                const topPort = portKeys.length ? portKeys[0] : 'N/A';
+                const portNames = { "1883": "1883 (MQTT)", "53": "53 (DNS)", "22": "22 (SSH)", "80": "80 (HTTP)", "443": "443 (HTTPS)" };
+                document.getElementById('dsTopPort').innerText = portNames[topPort] || topPort;
+            }
+
+            // Subtitle & Titles
+            const title1 = document.getElementById('dsChart1Title');
+            if (title1) title1.innerText = `Threat Subtypes & Class Distribution (${data.filename})`;
+            const title2 = document.getElementById('dsChart2Title');
+            if (title2) title2.innerText = `Transport Protocols & Port Composition`;
+
+            // Chart 1: Verdict & Attack Subtypes
             const ctx1 = document.getElementById('scenarioChart');
             if (ctx1) {
+                if (scenarioChartInstance) scenarioChartInstance.destroy();
+                const subKeys = Object.keys(data.subtype_counts || {});
+                const subVals = Object.values(data.subtype_counts || {});
                 scenarioChartInstance = new Chart(ctx1, {
                     type: 'bar',
                     data: {
-                        labels: ['MQTT Brute', 'Normal', 'Scan ACK', 'Scan UDP', 'SPARTA'],
-                        datasets: [
-                            { label: 'Benign Flows (0)', data: [2152, 86008, 5786, 17230, 77202], backgroundColor: 'rgba(16, 185, 129, 0.7)' },
-                            { label: 'Attack Flows (1)', data: [14544, 0, 19907, 22434, 14116], backgroundColor: 'rgba(239, 68, 68, 0.7)' }
-                        ]
+                        labels: subKeys.map(k => k.replace('_', ' ').toUpperCase()),
+                        datasets: [{
+                            label: 'Flow Count',
+                            data: subVals,
+                            backgroundColor: subKeys.map(k => k === 'benign' ? 'rgba(16, 185, 129, 0.8)' : 'rgba(239, 68, 68, 0.8)'),
+                            borderColor: subKeys.map(k => k === 'benign' ? '#10B981' : '#EF4444'),
+                            borderWidth: 1
+                        }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
                         scales: {
-                            x: { stacked: true, grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
-                            y: { stacked: true, grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
-                        },
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // Chart 2: Protocol & Port Distribution
+            const ctx2 = document.getElementById('protoChart');
+            if (ctx2) {
+                if (protoChartInstance) protoChartInstance.destroy();
+                const protoKeys = Object.keys(data.proto_counts || {});
+                const protoVals = Object.values(data.proto_counts || {});
+                protoChartInstance = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: protoKeys.length ? protoKeys : ['TCP (6)', 'UDP (17)'],
+                        datasets: [{
+                            data: protoVals.length ? protoVals : [80, 20],
+                            backgroundColor: ['#06B6D4', '#8B5CF6', '#F59E0B', '#10B981'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { labels: { color: '#E5E7EB' } } }
                     }
                 });
             }
 
-            const ctx2 = document.getElementById('protoChart');
-            if (ctx2) {
-                protoChartInstance = new Chart(ctx2, {
-                    type: 'doughnut',
+            // Chart 3: Alert Severity Distribution
+            const ctxSev = document.getElementById('severityChart');
+            if (ctxSev) {
+                if (severityChartInstance) severityChartInstance.destroy();
+                const sevOrder = ["BENIGN", "ELEVATED", "MEDIUM", "HIGH", "CRITICAL"];
+                const sevColors = { "BENIGN": "#10B981", "ELEVATED": "#FBBF24", "MEDIUM": "#F59E0B", "HIGH": "#EF4444", "CRITICAL": "#991B1B" };
+                const sevVals = sevOrder.map(s => (data.severity_counts && data.severity_counts[s]) ? data.severity_counts[s] : 0);
+                severityChartInstance = new Chart(ctxSev, {
+                    type: 'bar',
                     data: {
-                        labels: ['TCP (Proto 6)', 'UDP (Proto 17)'],
-                        datasets: [{ data: [215000, 44379], backgroundColor: ['#06B6D4', '#8B5CF6'], borderWidth: 0 }]
+                        labels: sevOrder,
+                        datasets: [{
+                            label: 'Flow Count',
+                            data: sevVals,
+                            backgroundColor: sevOrder.map(s => sevColors[s]),
+                            borderWidth: 0
+                        }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { labels: { color: '#E5E7EB' } } }
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // Chart 4: Probability Distribution Histogram
+            const ctxProb = document.getElementById('probChart');
+            if (ctxProb) {
+                if (probChartInstance) probChartInstance.destroy();
+                const probBins = data.prob_bins || [0,0,0,0,0,0,0,0,0,0];
+                probChartInstance = new Chart(ctxProb, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-.1', '.1-.2', '.2-.3', '.3-.4', '.4-.5', '.5-.6', '.6-.7', '.7-.8', '.8-.9', '.9-1'],
+                        datasets: [{
+                            label: 'Flow Count',
+                            data: probBins,
+                            backgroundColor: ['#10B981','#10B981','#F59E0B','#F59E0B','#F59E0B','#EF4444','#EF4444','#EF4444','#DC2626','#991B1B'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function renderDatasetCharts() {
+            if (scenarioChartInstance) return;
+            // Automatically analyze bundled sample_flows.csv on first visit to Dataset Intelligence tab!
+            loadSampleFlowsDataset();
+        }
+
+        // Charts for Detection Tab
+        let detVerdictChartInstance = null;
+        let detSeverityChartInstance = null;
+        let detSubtypeChartInstance = null;
+        let detProbChartInstance = null;
+
+        function renderDetectionCharts(data) {
+            const container = document.getElementById('detectionChartsContainer');
+            if (!container) return;
+            container.classList.remove('hidden');
+            const summarySpan = document.getElementById('detChartsSummary');
+            if (summarySpan) {
+                summarySpan.innerText = `${data.total_flows} flows evaluated • ${data.total_alerts} threats (${data.alert_rate_percentage}%)`;
+            }
+
+            // Verdict Donut
+            const ctxV = document.getElementById('detVerdictChart');
+            if (ctxV) {
+                if (detVerdictChartInstance) detVerdictChartInstance.destroy();
+                detVerdictChartInstance = new Chart(ctxV, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Normal', 'Attack'],
+                        datasets: [{
+                            data: [data.normal_flows || (data.total_flows - data.total_alerts), data.total_alerts],
+                            backgroundColor: ['#10B981', '#EF4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#E5E7EB', boxWidth: 10 } } }
+                    }
+                });
+            }
+
+            // Severity Bar
+            const ctxS = document.getElementById('detSeverityChart');
+            if (ctxS) {
+                if (detSeverityChartInstance) detSeverityChartInstance.destroy();
+                const sevOrder = ["BENIGN", "ELEVATED", "MEDIUM", "HIGH", "CRITICAL"];
+                const sevColors = { "BENIGN": "#10B981", "ELEVATED": "#FBBF24", "MEDIUM": "#F59E0B", "HIGH": "#EF4444", "CRITICAL": "#991B1B" };
+                const sevVals = sevOrder.map(s => (data.severity_counts && data.severity_counts[s]) ? data.severity_counts[s] : 0);
+                detSeverityChartInstance = new Chart(ctxS, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Benign', 'Elev', 'Med', 'High', 'Crit'],
+                        datasets: [{
+                            data: sevVals,
+                            backgroundColor: sevOrder.map(s => sevColors[s]),
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF', font: { size: 9 } } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // Subtype Bar
+            const ctxSub = document.getElementById('detSubtypeChart');
+            if (ctxSub) {
+                if (detSubtypeChartInstance) detSubtypeChartInstance.destroy();
+                const subKeys = Object.keys(data.subtype_counts || {});
+                const subVals = Object.values(data.subtype_counts || {});
+                detSubtypeChartInstance = new Chart(ctxSub, {
+                    type: 'bar',
+                    data: {
+                        labels: subKeys.map(k => k.replace('_', ' ')),
+                        datasets: [{
+                            data: subVals,
+                            backgroundColor: subKeys.map(k => k === 'benign' ? '#10B981' : '#EF4444'),
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#E5E7EB', font: { size: 9 } } }
+                        }
+                    }
+                });
+            }
+
+            // Prob Histogram
+            const ctxP = document.getElementById('detProbChart');
+            if (ctxP) {
+                if (detProbChartInstance) detProbChartInstance.destroy();
+                const probBins = data.prob_bins || [0,0,0,0,0,0,0,0,0,0];
+                detProbChartInstance = new Chart(ctxP, {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-.2', '.2-.4', '.4-.6', '.6-.8', '.8-1'],
+                        datasets: [{
+                            data: [
+                                probBins[0] + probBins[1],
+                                probBins[2] + probBins[3],
+                                probBins[4] + probBins[5],
+                                probBins[6] + probBins[7],
+                                probBins[8] + probBins[9]
+                            ],
+                            backgroundColor: ['#10B981', '#F59E0B', '#EF4444', '#DC2626', '#991B1B'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF', font: { size: 9 } } },
+                            y: { grid: { color: '#1F2937' }, ticks: { color: '#9CA3AF' } }
+                        }
                     }
                 });
             }

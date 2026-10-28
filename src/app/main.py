@@ -16,17 +16,21 @@ import io
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+# Setup paths and MPLCONFIGDIR before any matplotlib/loader imports
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+temp_mpl_dir = ROOT_DIR / ".temp_mpl"
+temp_mpl_dir.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(temp_mpl_dir))
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
-
-# Setup paths
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
 
 from src.models.predict_pipeline import NIDSPredictionPipeline
 
@@ -250,12 +254,83 @@ def predict_batch(payload: BatchFlowRecord):
         raise HTTPException(status_code=400, detail=f"Batch inference failed: {str(e)}")
 
 
+def _generate_telemetry_payload(df_in: pd.DataFrame, res_df: pd.DataFrame, filename: str) -> Dict[str, Any]:
+    """Helper to assemble rich analysis telemetry for dynamic dashboard visualization."""
+    total_flows = len(res_df)
+    total_alerts = int((res_df["is_alert"] == 1).sum()) if not res_df.empty else 0
+    normal_flows = total_flows - total_alerts
+
+    # Protocol breakdown
+    proto_map = {6: "TCP (6)", 17: "UDP (17)", 1: "ICMP (1)"}
+    proto_counts = {}
+    if "proto" in res_df.columns:
+        p_series = res_df["proto"].map(lambda p: proto_map.get(int(p), f"Proto {int(p)}") if pd.notnull(p) else "Other")
+        proto_counts = p_series.value_counts().to_dict()
+
+    # Port breakdown
+    port_counts = {}
+    if "prt_dst" in res_df.columns:
+        port_counts = res_df["prt_dst"].astype(int, errors='ignore').astype(str).value_counts().head(8).to_dict()
+
+    # Probability histogram bins (10 equal intervals from 0.0 to 1.0)
+    prob_bins = [0] * 10
+    if "prob_attack" in res_df.columns:
+        for p in res_df["prob_attack"]:
+            bin_idx = min(int(float(p) * 10), 9)
+            prob_bins[bin_idx] += 1
+
+    # Missing & Infinite counts
+    missing_cells = int(df_in.isna().sum().sum()) if not df_in.empty else 0
+    inf_cells = int(np.isinf(df_in.select_dtypes(include=np.number)).sum().sum()) if not df_in.empty else 0
+
+    return {
+        "filename": filename,
+        "total_flows": total_flows,
+        "normal_flows": normal_flows,
+        "total_alerts": total_alerts,
+        "alert_rate_percentage": round((total_alerts / total_flows) * 100, 2) if total_flows > 0 else 0,
+        "verdict_counts": {
+            "NORMAL": normal_flows,
+            "ATTACK": total_alerts
+        },
+        "severity_counts": res_df["severity"].value_counts().to_dict() if "severity" in res_df.columns else {},
+        "subtype_counts": res_df["attack_subtype"].value_counts().to_dict() if "attack_subtype" in res_df.columns else {},
+        "proto_counts": proto_counts,
+        "port_counts": port_counts,
+        "prob_bins": prob_bins,
+        "quality": {
+            "total_records": total_flows,
+            "missing_cells": missing_cells,
+            "infinite_cells": inf_cells
+        },
+        "preview_records": res_df.head(100).to_dict(orient="records") if not res_df.empty else []
+    }
+
+
+@app.get("/api/sample_flows")
+def get_sample_flows(threshold: float = 0.50):
+    """Load, evaluate and return complete analytical telemetry for the bundled sample_flows.csv dataset."""
+    if pipeline is None:
+        raise HTTPException(status_code=500, detail="Pipeline not initialized")
+
+    sample_path = ROOT_DIR / "sample_flows.csv"
+    if not sample_path.exists():
+        raise HTTPException(status_code=404, detail="sample_flows.csv not found")
+
+    try:
+        df = pd.read_csv(sample_path)
+        res_df = pipeline.predict_dataframe(df, threshold=threshold)
+        return _generate_telemetry_payload(df, res_df, filename="sample_flows.csv")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to analyze sample flows: {str(e)}")
+
+
 @app.post("/api/upload_csv")
 async def upload_csv(
     file: UploadFile = File(...),
     threshold: float = Form(0.50)
 ):
-    """Upload a CSV of flow features, run the inference pipeline, and return alert triage summary."""
+    """Upload a CSV of flow features, execute pipeline analysis, and return comprehensive diagram telemetry."""
     if pipeline is None:
         raise HTTPException(status_code=500, detail="Pipeline not initialized")
 
@@ -266,19 +341,7 @@ async def upload_csv(
             raise HTTPException(status_code=400, detail="Uploaded CSV file is empty")
 
         res_df = pipeline.predict_dataframe(df, threshold=threshold)
-
-        total_flows = len(res_df)
-        total_alerts = int((res_df["is_alert"] == 1).sum())
-
-        return {
-            "filename": file.filename,
-            "total_flows": total_flows,
-            "total_alerts": total_alerts,
-            "alert_rate_percentage": round((total_alerts / total_flows) * 100, 2) if total_flows > 0 else 0,
-            "severity_counts": res_df["severity"].value_counts().to_dict(),
-            "subtype_counts": res_df["attack_subtype"].value_counts().to_dict(),
-            "preview_records": res_df.head(100).to_dict(orient="records")
-        }
+        return _generate_telemetry_payload(df, res_df, filename=file.filename)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to process CSV: {str(e)}")
 
@@ -296,19 +359,7 @@ async def upload_pcap(
     try:
         contents = await file.read()
         res_df, flows_df = pipeline.process_pcap(contents, max_packets=max_packets, threshold=threshold)
-
-        total_flows = len(res_df)
-        total_alerts = int((res_df["is_alert"] == 1).sum()) if not res_df.empty else 0
-
-        return {
-            "filename": file.filename,
-            "flows_extracted": total_flows,
-            "total_alerts": total_alerts,
-            "alert_rate_percentage": round((total_alerts / total_flows) * 100, 2) if total_flows > 0 else 0,
-            "severity_counts": res_df["severity"].value_counts().to_dict() if not res_df.empty else {},
-            "subtype_counts": res_df["attack_subtype"].value_counts().to_dict() if not res_df.empty else {},
-            "preview_records": res_df.head(100).to_dict(orient="records") if not res_df.empty else []
-        }
+        return _generate_telemetry_payload(flows_df, res_df, filename=file.filename)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to process PCAP: {str(e)}")
 

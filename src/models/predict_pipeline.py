@@ -223,9 +223,9 @@ class NIDSPredictionPipeline:
         else:
             results_df["attack_subtype"] = np.where(pred_is_attack == 1, "malicious_unclassified", "benign")
 
-        # Attach original feature subset for analyst review
-        for col in ["prt_dst", "proto", "total_pkts", "total_bytes", "pkt_ratio", "byte_ratio"]:
-            if col in df_features.columns:
+        # Attach engineered features for analyst review and downstream explainability
+        for col in df_features.columns:
+            if col not in results_df.columns:
                 results_df[col] = df_features[col].values
 
         return results_df

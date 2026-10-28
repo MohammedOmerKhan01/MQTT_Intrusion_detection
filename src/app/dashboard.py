@@ -15,17 +15,25 @@ import os
 import sys
 import json
 import io
+import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional
+
+# Configure clean Matplotlib config directory before importing matplotlib
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+temp_mpl_dir = ROOT_DIR / ".temp_mpl"
+temp_mpl_dir.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("MPLCONFIGDIR", str(temp_mpl_dir))
 
 import streamlit as st
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Ensure project root in sys.path
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
@@ -88,6 +96,268 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+
+# Network Port to Service Name Mapping
+PORT_NAME_MAP = {
+    1883: "1883 (MQTT)",
+    53: "53 (DNS)",
+    22: "22 (SSH)",
+    80: "80 (HTTP)",
+    443: "443 (HTTPS)",
+    21: "21 (FTP)",
+    25: "25 (SMTP)",
+    8080: "8080 (HTTP-Alt)",
+    8883: "8883 (MQTTS)",
+    3389: "3389 (RDP)",
+    3306: "3306 (MySQL)"
+}
+
+
+def style_dark_axis(fig, ax, title="", xlabel="", ylabel=""):
+    """Apply high-contrast cybersecurity dark theme to Matplotlib axis."""
+    fig.patch.set_facecolor('#0E1626')
+    ax.set_facecolor('#0B1120')
+    ax.tick_params(colors='#94A3B8', labelsize=9)
+    if xlabel:
+        ax.set_xlabel(xlabel, color='#E2E8F0', fontsize=10, fontweight='bold')
+    if ylabel:
+        ax.set_ylabel(ylabel, color='#E2E8F0', fontsize=10, fontweight='bold')
+    if title:
+        ax.set_title(title, color='#FFFFFF', fontsize=11, fontweight='bold', pad=10)
+    for spine in ax.spines.values():
+        spine.set_color('#1E293B')
+    ax.grid(True, color='#1E293B', linestyle='--', alpha=0.6)
+
+
+def plot_verdict_donut(normal_count: int, attack_count: int, title="Threat Classification Breakdown"):
+    """Render high-contrast donut chart for Normal vs Malicious flow verdicts."""
+    fig, ax = plt.subplots(figsize=(5, 3.4))
+    fig.patch.set_facecolor('#0E1626')
+    ax.set_facecolor('#0E1626')
+    labels = ["Normal (0)", "Attack Alert (1)"]
+    sizes = [normal_count, attack_count]
+    colors = ["#10B981", "#EF4444"]
+    if sum(sizes) == 0:
+        sizes = [1, 0]
+    wedges, texts, autotexts = ax.pie(
+        sizes, labels=labels, autopct='%1.1f%%', startangle=90,
+        colors=colors, textprops={'color': '#E2E8F0', 'fontsize': 9, 'fontweight': 'bold'},
+        wedgeprops={'width': 0.45, 'edgecolor': '#0E1626', 'linewidth': 2}
+    )
+    for autotext in autotexts:
+        autotext.set_color('#FFFFFF')
+        autotext.set_fontsize(9)
+    ax.set_title(title, color='#FFFFFF', fontsize=11, fontweight='bold', pad=12)
+    plt.tight_layout()
+    return fig
+
+
+def plot_severity_bar(severity_counts: Dict[str, int], title="Alert Severity Distribution"):
+    """Render color-coded bar chart of alert severity tiers."""
+    fig, ax = plt.subplots(figsize=(5.5, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Severity Tier", ylabel="Flow Count")
+    order = ["BENIGN", "ELEVATED", "MEDIUM", "HIGH", "CRITICAL"]
+    palette = {"BENIGN": "#10B981", "ELEVATED": "#FBBF24", "MEDIUM": "#F59E0B", "HIGH": "#EF4444", "CRITICAL": "#991B1B"}
+    vals = [severity_counts.get(k, 0) for k in order]
+    cols = [palette[k] for k in order]
+    bars = ax.bar(order, vals, color=cols, edgecolor='#1E293B', linewidth=1)
+    max_val = max(vals) if vals and max(vals) > 0 else 1
+    for bar, val in zip(bars, vals):
+        if val > 0:
+            ax.text(bar.get_x() + bar.get_width()/2, val + (max_val * 0.02), f"{val:,}", ha='center', va='bottom', color='#E2E8F0', fontsize=8, fontweight='bold')
+    ax.set_ylim(0, max_val * 1.20)
+    plt.tight_layout()
+    return fig
+
+
+def plot_subtypes_bar(subtype_counts: Dict[str, int], title="Identified Threat Subtypes"):
+    """Render horizontal bar chart for attack taxonomy classification."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Flow Count", ylabel="")
+    items = sorted(subtype_counts.items(), key=lambda x: x[1])
+    labels = [k.replace('_', ' ').title() for k, v in items]
+    vals = [v for k, v in items]
+    total = sum(vals) if sum(vals) > 0 else 1
+    colors = ["#10B981" if "Benign" in lbl else "#EF4444" for lbl in labels]
+    bars = ax.barh(labels, vals, color=colors, edgecolor='#1E293B', linewidth=1)
+    max_val = max(vals) if vals and max(vals) > 0 else 1
+    for bar, val in zip(bars, vals):
+        pct = (val / total) * 100
+        ax.text(val + (max_val * 0.02), bar.get_y() + bar.get_height()/2, f"{val:,} ({pct:.1f}%)", ha='left', va='center', color='#E2E8F0', fontsize=8, fontweight='bold')
+    ax.set_xlim(0, max_val * 1.35)
+    plt.tight_layout()
+    return fig
+
+
+def plot_prob_distribution(prob_series: pd.Series, threshold=0.50, title="Threat Probability Density P(Attack)"):
+    """Render probability distribution histogram with configurable decision threshold line."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="P(Attack)", ylabel="Flow Count")
+    n, bins, patches = ax.hist(prob_series, bins=np.linspace(0, 1, 21), edgecolor='#0E1626', linewidth=1)
+    for bin_left, patch in zip(bins[:-1], patches):
+        if bin_left >= threshold:
+            patch.set_facecolor('#EF4444')
+        elif bin_left >= 0.20:
+            patch.set_facecolor('#F59E0B')
+        else:
+            patch.set_facecolor('#10B981')
+    ax.axvline(threshold, color='#38BDF8', linestyle='--', linewidth=2, label=f"Decision Threshold (\u03c4 = {threshold:.2f})")
+    ax.legend(facecolor='#0E1626', edgecolor='#1E293B', labelcolor='#E2E8F0', fontsize=8)
+    plt.tight_layout()
+    return fig
+
+
+def plot_protocol_donut(proto_series: pd.Series, title="Transport Protocol Composition"):
+    """Render protocol breakdown donut chart."""
+    fig, ax = plt.subplots(figsize=(5, 3.4))
+    fig.patch.set_facecolor('#0E1626')
+    ax.set_facecolor('#0E1626')
+    counts = proto_series.value_counts()
+    proto_names = {6: "TCP (6)", 17: "UDP (17)", 1: "ICMP (1)"}
+    labels = [proto_names.get(int(p), f"Proto {p}") for p in counts.index]
+    palette = ["#06B6D4", "#8B5CF6", "#F59E0B", "#10B981", "#EC4899"]
+    colors = [palette[i % len(palette)] for i in range(len(counts))]
+    wedges, texts, autotexts = ax.pie(
+        counts.values, labels=labels, autopct='%1.1f%%', startangle=140,
+        colors=colors, textprops={'color': '#E2E8F0', 'fontsize': 9, 'fontweight': 'bold'},
+        wedgeprops={'width': 0.45, 'edgecolor': '#0E1626', 'linewidth': 2}
+    )
+    for at in autotexts:
+        at.set_color('#FFFFFF')
+        at.set_fontsize(9)
+    ax.set_title(title, color='#FFFFFF', fontsize=11, fontweight='bold', pad=12)
+    plt.tight_layout()
+    return fig
+
+
+def plot_top_ports_bar(port_series: pd.Series, title="Top Destination Ports"):
+    """Render bar chart of destination ports annotated with network service names."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Flow Count", ylabel="Destination Port")
+    counts = port_series.value_counts().head(8).sort_values(ascending=True)
+    labels = [PORT_NAME_MAP.get(int(p), str(int(p))) for p in counts.index]
+    vals = counts.values
+    colors = ["#06B6D4" if "1883" in lbl else ("#8B5CF6" if "53" in lbl else "#38BDF8") for lbl in labels]
+    bars = ax.barh(labels, vals, color=colors, edgecolor='#1E293B', linewidth=1)
+    max_val = max(vals) if len(vals) > 0 and max(vals) > 0 else 1
+    for bar, val in zip(bars, vals):
+        ax.text(val + (max_val * 0.02), bar.get_y() + bar.get_height()/2, f"{val:,}", ha='left', va='center', color='#E2E8F0', fontsize=8, fontweight='bold')
+    ax.set_xlim(0, max_val * 1.25)
+    plt.tight_layout()
+    return fig
+
+
+def plot_packet_lengths(df: pd.DataFrame, title="Packet Length Dynamics"):
+    """Render forward vs backward packet length distributions."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Packet Length (bytes)", ylabel="Flow Count")
+    if "fwd_mean_pkt_len" in df.columns:
+        ax.hist(df["fwd_mean_pkt_len"].dropna(), bins=15, alpha=0.6, color="#06B6D4", label="Forward Mean Len", edgecolor='#0E1626')
+    if "bwd_mean_pkt_len" in df.columns:
+        ax.hist(df["bwd_mean_pkt_len"].dropna(), bins=15, alpha=0.6, color="#A855F7", label="Backward Mean Len", edgecolor='#0E1626')
+    ax.legend(facecolor='#0E1626', edgecolor='#1E293B', labelcolor='#E2E8F0', fontsize=8)
+    plt.tight_layout()
+    return fig
+
+
+def plot_ratios_distribution(df: pd.DataFrame, title="Flow Dynamics & Asymmetry Ratios (Log Scale)"):
+    """Render boxplots of flow asymmetry ratios capturing bidirectional behavior."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Ratio Feature", ylabel="Log10 Value")
+    ratio_cols = [c for c in ["pkt_ratio", "byte_ratio", "bytes_per_pkt", "pkt_len_ratio"] if c in df.columns]
+    if ratio_cols:
+        plot_data = []
+        labels = []
+        for col in ratio_cols:
+            vals = np.log10(df[col].replace(0, np.nan).dropna() + 1e-6)
+            if not vals.empty:
+                plot_data.append(vals)
+                labels.append(col)
+        if plot_data:
+            bp = ax.boxplot(plot_data, labels=labels, patch_artist=True, showfliers=False)
+            colors = ["#06B6D4", "#38BDF8", "#10B981", "#A855F7"]
+            for patch, col in zip(bp['boxes'], colors[:len(plot_data)]):
+                patch.set_facecolor(col)
+                patch.set_alpha(0.7)
+                patch.set_edgecolor('#FFFFFF')
+            for median in bp['medians']:
+                median.set_color('#FFFFFF')
+                median.set_linewidth(1.5)
+            for whisker in bp['whiskers']:
+                whisker.set_color('#94A3B8')
+            for cap in bp['caps']:
+                cap.set_color('#94A3B8')
+    plt.tight_layout()
+    return fig
+
+
+def plot_tcp_flags(df: pd.DataFrame, title="TCP Control Flag Activity"):
+    """Render forward vs backward TCP control flag rates."""
+    fig, ax = plt.subplots(figsize=(6, 3.4))
+    style_dark_axis(fig, ax, title=title, xlabel="Control Flag", ylabel="Mean Flags per Flow")
+    flag_cols = [c for c in ["fwd_num_psh_flags", "bwd_num_psh_flags", "fwd_num_rst_flags", "bwd_num_rst_flags"] if c in df.columns]
+    if flag_cols:
+        means = [float(df[c].mean()) for c in flag_cols]
+        labels = ["Fwd PSH", "Bwd PSH", "Fwd RST", "Bwd RST"]
+        colors = ["#38BDF8", "#06B6D4", "#EF4444", "#DC2626"]
+        bars = ax.bar(labels, means, color=colors, edgecolor='#1E293B', linewidth=1)
+        max_val = max(means) if means and max(means) > 0 else 1
+        for bar, val in zip(bars, means):
+            ax.text(bar.get_x() + bar.get_width()/2, val + (max_val * 0.02), f"{val:.2f}", ha='center', va='bottom', color='#E2E8F0', fontsize=8, fontweight='bold')
+        ax.set_ylim(0, max_val * 1.25)
+    plt.tight_layout()
+    return fig
+
+
+def plot_correlation_heatmap(df: pd.DataFrame, title="Feature Correlation Matrix (Spearman)"):
+    """Render Spearman rank correlation heatmap across key flow dynamics."""
+    fig, ax = plt.subplots(figsize=(9, 6.2))
+    fig.patch.set_facecolor('#0E1626')
+    ax.set_facecolor('#0B1120')
+    candidate_cols = [
+        "fwd_num_pkts", "bwd_num_pkts", "fwd_num_bytes", "bwd_num_bytes",
+        "fwd_mean_iat", "bwd_mean_iat", "pkt_ratio", "byte_ratio",
+        "bytes_per_pkt", "fwd_num_psh_flags", "bwd_num_rst_flags"
+    ]
+    present_cols = [c for c in candidate_cols if c in df.columns]
+    if len(present_cols) >= 3 and len(df) >= 3:
+        corr = df[present_cols].corr(method='spearman')
+        mask = np.triu(np.ones_like(corr, dtype=bool))
+        sns.heatmap(
+            corr, mask=mask, annot=True, fmt='.2f', cmap='vlag', center=0,
+            linewidths=0.5, linecolor='#0E1626', ax=ax,
+            cbar_kws={'label': 'Spearman Correlation'},
+            annot_kws={'size': 7, 'color': '#FFFFFF'}
+        )
+        ax.tick_params(colors='#94A3B8', labelsize=8)
+        cbar = ax.collections[0].colorbar
+        cbar.ax.tick_params(colors='#94A3B8')
+        cbar.ax.yaxis.label.set_color('#E2E8F0')
+    ax.set_title(title, color='#FFFFFF', fontsize=12, fontweight='bold', pad=12)
+    plt.tight_layout()
+    return fig
+
+
+def plot_confusion_matrix(y_true: pd.Series, y_pred: pd.Series, title="Ground Truth vs Model Verdict"):
+    """Render confusion matrix comparison heatmap."""
+    fig, ax = plt.subplots(figsize=(5, 3.4))
+    fig.patch.set_facecolor('#0E1626')
+    ax.set_facecolor('#0B1120')
+    from sklearn.metrics import confusion_matrix
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    sns.heatmap(
+        cm, annot=True, fmt='d', cmap='Blues', ax=ax,
+        xticklabels=['Benign (0)', 'Attack (1)'],
+        yticklabels=['Benign (0)', 'Attack (1)'],
+        cbar=False, annot_kws={'size': 11, 'fontweight': 'bold'}
+    )
+    ax.tick_params(colors='#94A3B8', labelsize=9)
+    ax.set_xlabel('Model Predicted Label', color='#E2E8F0', fontsize=10, fontweight='bold')
+    ax.set_ylabel('Ground Truth Label', color='#E2E8F0', fontsize=10, fontweight='bold')
+    ax.set_title(title, color='#FFFFFF', fontsize=11, fontweight='bold', pad=10)
+    plt.tight_layout()
+    return fig
 
 
 @st.cache_resource(show_spinner="Loading ML-NIDS Pipeline and SHAP Explainer...")
@@ -176,52 +446,242 @@ def main():
     # TAB B: DATASET ANALYSIS & QUALITY AUDITING
     # ========================================================
     with tab_b:
-        st.header("Dataset Intelligence & Schema Auditing")
-        st.markdown("Upload any pre-extracted flow feature CSV to inspect schema conformance, missing values, and class balance.")
+        st.header("Dataset Intelligence, Quality Audit & Dynamic Visual Analysis")
+        st.markdown(
+            "Upload any flow dataset, select the bundled benchmark (`sample_flows.csv`), or paste flow records. "
+            "The system automatically verifies schema conformance, executes machine learning inference, "
+            "and generates comprehensive analytical diagrams and visualizations based on the given data."
+        )
 
-        uploaded_eda = st.file_uploader("Upload Feature CSV for Quality Audit", type=["csv"], key="eda_upload")
+        eda_mode = st.radio(
+            "Select Dataset Source:",
+            [
+                "⚡ Built-In Sample Flows (`sample_flows.csv`)",
+                "📂 Upload Feature CSV File",
+                "📋 Paste CSV Flow Data"
+            ],
+            horizontal=True,
+            key="eda_mode_selection"
+        )
 
-        if uploaded_eda is not None:
-            try:
-                df_eda = pd.read_csv(uploaded_eda)
-                st.success(f"Loaded `{uploaded_eda.name}`: {len(df_eda):,} rows, {len(df_eda.columns)} columns.")
+        df_eda = None
+        source_name = ""
 
-                col_a, col_b, col_c = st.columns(3)
-                col_a.metric("Total Rows", f"{len(df_eda):,}")
-                col_b.metric("Missing (NaN) Cells", f"{df_eda.isna().sum().sum():,}")
-                col_c.metric("Infinite Values", f"{np.isinf(df_eda.select_dtypes(include=np.number)).sum().sum():,}")
+        if eda_mode == "⚡ Built-In Sample Flows (`sample_flows.csv`)":
+            sample_path = ROOT_DIR / "sample_flows.csv"
+            if sample_path.exists():
+                try:
+                    df_eda = pd.read_csv(sample_path)
+                    source_name = "sample_flows.csv (Bundled Benchmark)"
+                    st.success(f"Loaded bundled benchmark `{source_name}` with {len(df_eda)} network flows.")
+                except Exception as e:
+                    st.error(f"Error reading sample_flows.csv: {e}")
+            else:
+                st.error("sample_flows.csv not found in repository root.")
 
-                # Schema verification
-                missing_feats = [f for f in pipeline.expected_features if f not in df_eda.columns]
-                has_raw_biflow = all(c in df_eda.columns for c in ["fwd_num_pkts", "bwd_num_pkts", "fwd_num_bytes"])
+        elif eda_mode == "📂 Upload Feature CSV File":
+            uploaded_eda = st.file_uploader("Upload Feature CSV for Quality Audit & Visualization", type=["csv"], key="eda_upload")
+            if uploaded_eda is not None:
+                try:
+                    df_eda = pd.read_csv(uploaded_eda)
+                    source_name = uploaded_eda.name
+                    st.success(f"Loaded `{source_name}`: {len(df_eda):,} rows, {len(df_eda.columns)} columns.")
+                except Exception as e:
+                    st.error(f"Error reading uploaded CSV: {e}")
 
-                if not missing_feats:
-                    st.success("Schema Conformance: Clean match with exact 34 engineered features.")
-                elif has_raw_biflow:
-                    st.info("Schema Conformance: Raw biflow format detected. Ratio features will be synthesized automatically.")
-                else:
-                    st.warning(f"Schema Warning: File is missing required feature columns: {missing_feats[:5]}...")
+        elif eda_mode == "📋 Paste CSV Flow Data":
+            pasted_csv = st.text_area(
+                "Paste CSV Flow Rows (including header line):",
+                height=150,
+                placeholder="bwd_max_iat,bwd_max_pkt_len,bwd_mean_iat,...\n0.00092,60,0.00035,..."
+            )
+            if pasted_csv.strip():
+                try:
+                    df_eda = pd.read_csv(io.StringIO(pasted_csv.strip()))
+                    source_name = "Pasted Flow Dataset"
+                    st.success(f"Parsed pasted flow dataset: {len(df_eda):,} rows, {len(df_eda.columns)} columns.")
+                except Exception as e:
+                    st.error(f"Error parsing pasted CSV text: {e}")
 
-                # Class Distribution if Ground Truth Available
-                if "is_attack" in df_eda.columns or "target_is_attack" in df_eda.columns:
-                    lbl_col = "target_is_attack" if "target_is_attack" in df_eda.columns else "is_attack"
-                    st.subheader("Trustworthy Label Distribution")
-                    val_counts = df_eda[lbl_col].value_counts()
+        if df_eda is not None and not df_eda.empty:
+            # 1. Quality & Schema Auditing
+            st.subheader(f"1. Schema Conformance & Telemetry ({source_name})")
+            
+            missing_cells = int(df_eda.isna().sum().sum())
+            inf_cells = int(np.isinf(df_eda.select_dtypes(include=np.number)).sum().sum())
+            dup_rows = int(df_eda.duplicated().sum())
 
-                    fig, ax = plt.subplots(figsize=(6, 2.5))
-                    colors = ["#10B981" if x == 0 else "#EF4444" for x in val_counts.index]
-                    ax.bar(["Benign (0)", "Attack (1)"], val_counts.values, color=colors, width=0.5)
-                    ax.set_ylabel("Flow Count")
-                    ax.set_title(f"Ground Truth Class Balance in {uploaded_eda.name}")
-                    for i, v in enumerate(val_counts.values):
-                        ax.text(i, v + (max(val_counts.values)*0.02), f"{v:,} ({v/len(df_eda)*100:.1f}%)", ha='center', fontsize=9)
-                    st.pyplot(fig)
-                    plt.close()
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Total Records", f"{len(df_eda):,}")
+            c2.metric("Missing (NaN) Cells", f"{missing_cells:,}")
+            c3.metric("Infinite Values", f"{inf_cells:,}")
+            c4.metric("Duplicate Flows", f"{dup_rows:,}")
 
-            except Exception as e:
-                st.error(f"Error parsing CSV: {e}")
+            # Schema Verification
+            missing_feats = [f for f in pipeline.expected_features if f not in df_eda.columns]
+            has_raw_biflow = all(c in df_eda.columns for c in ["fwd_num_pkts", "bwd_num_pkts", "fwd_num_bytes"])
+
+            if not missing_feats:
+                st.success("✅ **Schema Verification Clean:** Exact 34 engineered model features present.")
+            elif has_raw_biflow:
+                st.info("ℹ️ **Raw Biflow Schema Detected:** Asymmetry ratios (pkt_ratio, byte_ratio, etc.) will be dynamically calculated.")
+            else:
+                st.warning(f"⚠️ Missing model features: {missing_feats[:5]}... Pipeline will attempt automated imputation.")
+
+            # 2. Run Pipeline Prediction for Complete Threat Analytics
+            with st.spinner("Analyzing dataset dynamics and evaluating threat classifications..."):
+                try:
+                    results_eda = pipeline.predict_dataframe(df_eda, threshold=threshold)
+                except Exception as e:
+                    st.error(f"Pipeline evaluation error: {e}")
+                    results_eda = None
+
+            if results_eda is not None and not results_eda.empty:
+                tot_flows = len(results_eda)
+                alert_count = int((results_eda["is_alert"] == 1).sum())
+                normal_count = tot_flows - alert_count
+                alert_rate = (alert_count / tot_flows) * 100 if tot_flows > 0 else 0
+                crit_count = int((results_eda["severity"] == "CRITICAL").sum())
+                high_count = int((results_eda["severity"] == "HIGH").sum())
+
+                # Threat Telemetry Cards
+                st.markdown("---")
+                st.subheader("2. AI Threat Intelligence & Risk Summary")
+                t_c1, t_c2, t_c3, t_c4 = st.columns(4)
+                t_c1.metric("Normal / Benign Flows", f"{normal_count:,}", f"{(normal_count/tot_flows)*100:.1f}%")
+                t_c2.metric("Flagged Malicious Alerts", f"{alert_count:,}", f"{alert_rate:.1f}% rate", delta_color="inverse")
+                t_c3.metric("Critical & High Alerts", f"{crit_count + high_count:,}")
+                top_port = results_eda["prt_dst"].mode().iloc[0] if "prt_dst" in results_eda.columns and not results_eda["prt_dst"].empty else "N/A"
+                top_port_name = PORT_NAME_MAP.get(int(top_port), str(top_port)) if top_port != "N/A" else "N/A"
+                t_c4.metric("Dominant Target Port", f"{top_port_name}")
+
+                # 3. Dynamic Visualizations & Diagrams
+                st.markdown("---")
+                st.subheader("3. Comprehensive Visual Analysis & Telemetry Diagrams")
+                
+                vtab1, vtab2, vtab3, vtab4 = st.tabs([
+                    "🎯 Threat Verdict & Subtypes",
+                    "🌐 Protocols & Target Ports",
+                    "⚡ Traffic Volume & Asymmetry Ratios",
+                    "🔬 TCP Flags & Feature Correlations"
+                ])
+
+                with vtab1:
+                    st.markdown("#### Threat Detection Breakdown & Confidence Spectrum")
+                    v_col1, v_col2 = st.columns(2)
+                    with v_col1:
+                        fig_donut = plot_verdict_donut(normal_count, alert_count, title="Threat Classification Verdict")
+                        st.pyplot(fig_donut)
+                        plt.close(fig_donut)
+                    with v_col2:
+                        sev_counts = results_eda["severity"].value_counts().to_dict()
+                        fig_sev = plot_severity_bar(sev_counts, title="Alert Severity Distribution")
+                        st.pyplot(fig_sev)
+                        plt.close(fig_sev)
+
+                    v_col3, v_col4 = st.columns(2)
+                    with v_col3:
+                        st_counts = results_eda["attack_subtype"].value_counts().to_dict()
+                        fig_sub = plot_subtypes_bar(st_counts, title="Predicted Attack Subtypes")
+                        st.pyplot(fig_sub)
+                        plt.close(fig_sub)
+                    with v_col4:
+                        fig_prob = plot_prob_distribution(results_eda["prob_attack"], threshold=threshold, title="Threat Probability Density P(Attack)")
+                        st.pyplot(fig_prob)
+                        plt.close(fig_prob)
+
+                    # Ground truth comparison if label column present
+                    gt_col = "target_is_attack" if "target_is_attack" in df_eda.columns else ("is_attack" if "is_attack" in df_eda.columns else None)
+                    if gt_col:
+                        st.markdown("---")
+                        st.markdown("#### Ground Truth Label vs Model Predictions")
+                        gt_c1, gt_c2 = st.columns(2)
+                        with gt_c1:
+                            val_counts = df_eda[gt_col].value_counts()
+                            fig_gt, ax_gt = plt.subplots(figsize=(5, 3.2))
+                            style_dark_axis(fig_gt, ax_gt, title="Ground Truth Class Distribution", xlabel="Class", ylabel="Flow Count")
+                            bars_gt = ax_gt.bar(["Benign (0)", "Attack (1)"], [val_counts.get(0, 0), val_counts.get(1, 0)], color=["#10B981", "#EF4444"])
+                            for bar, v in zip(bars_gt, [val_counts.get(0, 0), val_counts.get(1, 0)]):
+                                ax_gt.text(bar.get_x() + bar.get_width()/2, v + 0.5, f"{v:,}", ha='center', va='bottom', color='#FFFFFF', fontsize=9, fontweight='bold')
+                            st.pyplot(fig_gt)
+                            plt.close(fig_gt)
+                        with gt_c2:
+                            fig_cm = plot_confusion_matrix(df_eda[gt_col], results_eda["is_alert"], title="Model Evaluation Matrix on Provided Dataset")
+                            st.pyplot(fig_cm)
+                            plt.close(fig_cm)
+
+                with vtab2:
+                    st.markdown("#### Transport Layer & Service Telemetry")
+                    p_col1, p_col2 = st.columns(2)
+                    with p_col1:
+                        if "proto" in results_eda.columns:
+                            fig_proto = plot_protocol_donut(results_eda["proto"], title="Transport Layer Protocols")
+                            st.pyplot(fig_proto)
+                            plt.close(fig_proto)
+                        else:
+                            st.info("Protocol column not present in dataset.")
+                    with p_col2:
+                        if "prt_dst" in results_eda.columns:
+                            fig_port = plot_top_ports_bar(results_eda["prt_dst"], title="Top Targeted Destination Ports")
+                            st.pyplot(fig_port)
+                            plt.close(fig_port)
+                        else:
+                            st.info("Destination port column not present in dataset.")
+
+                with vtab3:
+                    st.markdown("#### Flow Volume, Packet Dynamics & Asymmetry Ratios")
+                    r_col1, r_col2 = st.columns(2)
+                    with r_col1:
+                        fig_pkt = plot_packet_lengths(results_eda, title="Packet Length Dynamics")
+                        st.pyplot(fig_pkt)
+                        plt.close(fig_pkt)
+                    with r_col2:
+                        fig_ratios = plot_ratios_distribution(results_eda, title="Flow Asymmetry Ratios (Log Scale)")
+                        st.pyplot(fig_ratios)
+                        plt.close(fig_ratios)
+
+                with vtab4:
+                    st.markdown("#### TCP Control Flags & Feature Correlations")
+                    c_col1, c_col2 = st.columns([1, 1])
+                    with c_col1:
+                        fig_flags = plot_tcp_flags(results_eda, title="TCP Control Flag Activity")
+                        st.pyplot(fig_flags)
+                        plt.close(fig_flags)
+                    with c_col2:
+                        if len(results_eda) >= 3:
+                            fig_corr = plot_correlation_heatmap(results_eda, title="Feature Correlation Matrix")
+                            st.pyplot(fig_corr)
+                            plt.close(fig_corr)
+                        else:
+                            st.info("At least 3 flow records are required to calculate correlation matrix.")
+
+                # 4. Interactive Data Table & Seamless Handoff
+                st.markdown("---")
+                st.subheader("4. Analyzed Flow Records & Investigation Queue")
+                filter_choice = st.selectbox(
+                    "Filter Records:",
+                    ["All Flows", "Flagged Attacks Only", "Normal Traffic Only"],
+                    key="eda_filter"
+                )
+                filtered_df = results_eda
+                if filter_choice == "Flagged Attacks Only":
+                    filtered_df = results_eda[results_eda["is_alert"] == 1]
+                elif filter_choice == "Normal Traffic Only":
+                    filtered_df = results_eda[results_eda["is_alert"] == 0]
+
+                display_cols = [c for c in ["predicted_label", "prob_attack", "severity", "attack_subtype", "prt_dst", "proto", "total_pkts", "total_bytes"] if c in filtered_df.columns]
+                st.dataframe(filtered_df[display_cols].head(100), use_container_width=True)
+
+                # Button to transfer to active detection session
+                col_btn, _ = st.columns([2, 3])
+                with col_btn:
+                    if st.button("🚀 Load Analyzed Dataset into Threat Detection & XAI Investigation", type="primary"):
+                        st.session_state["active_results"] = results_eda
+                        st.session_state["active_input_df"] = df_eda
+                        st.session_state["inference_completed"] = True
+                        st.success("✅ Dataset loaded! Switch to Tab C (Threat Detection) or Tab D (Alert Investigation & XAI) to inspect any individual flow!")
         else:
-            st.info("Upload a CSV file or load the benchmark summary below.")
+            st.info("Select or upload a dataset above to generate complete analysis diagrams and threat evaluations.")
             summary_path = ROOT_DIR / "artifacts" / "reports" / "eda_summary.json"
             if summary_path.exists():
                 with open(summary_path, "r", encoding="utf-8") as f:
@@ -234,15 +694,22 @@ def main():
     # ========================================================
     with tab_c:
         st.header("Threat Detection & Stream Ingestion")
-        st.markdown("Run live inference using pre-loaded curated test cases, uploaded feature CSVs, or raw PCAP captures.")
+        st.markdown("Run live inference using pre-loaded curated test cases, uploaded feature CSVs, raw PCAP captures, or benchmark datasets.")
 
         ingest_mode = st.radio(
             "Select Ingestion Source:",
-            ["Curated Test Cases", "Upload CSV Features", "Upload Raw PCAP Capture"],
+            [
+                "Curated Test Cases",
+                "⚡ Load Built-In Sample Flows (`sample_flows.csv`)",
+                "Upload CSV Features",
+                "📋 Paste CSV Flow Data",
+                "Upload Raw PCAP Capture"
+            ],
             horizontal=True
         )
 
         results_df = None
+        input_df = None
 
         if ingest_mode == "Curated Test Cases":
             st.subheader("Select Curated Test Case")
@@ -287,18 +754,44 @@ def main():
 
             selected_sc = st.selectbox("Choose Traffic Scenario:", list(scenarios.keys()))
             sample_feats = scenarios[selected_sc]
-            df_curated = pd.DataFrame([sample_feats])
-            results_df = pipeline.predict_dataframe(df_curated, threshold=threshold)
+            input_df = pd.DataFrame([sample_feats])
+            results_df = pipeline.predict_dataframe(input_df, threshold=threshold)
+
+        elif ingest_mode == "⚡ Load Built-In Sample Flows (`sample_flows.csv`)":
+            sample_path = ROOT_DIR / "sample_flows.csv"
+            if sample_path.exists():
+                try:
+                    input_df = pd.read_csv(sample_path)
+                    results_df = pipeline.predict_dataframe(input_df, threshold=threshold)
+                    st.success(f"Successfully evaluated {len(results_df):,} flows from bundled `sample_flows.csv`.")
+                except Exception as e:
+                    st.error(f"Inference error on sample_flows.csv: {e}")
+            else:
+                st.error("sample_flows.csv not found in repository root.")
 
         elif ingest_mode == "Upload CSV Features":
             uploaded_file = st.file_uploader("Upload CSV Flow File", type=["csv"], key="infer_csv")
             if uploaded_file is not None:
                 try:
-                    df_raw = pd.read_csv(uploaded_file)
-                    results_df = pipeline.predict_dataframe(df_raw, threshold=threshold)
+                    input_df = pd.read_csv(uploaded_file)
+                    results_df = pipeline.predict_dataframe(input_df, threshold=threshold)
                     st.success(f"Successfully processed {len(results_df):,} flows from `{uploaded_file.name}`.")
                 except Exception as e:
                     st.error(f"Inference error: {e}")
+
+        elif ingest_mode == "📋 Paste CSV Flow Data":
+            pasted_infer = st.text_area(
+                "Paste Flow CSV Text to Ingest:",
+                height=150,
+                placeholder="bwd_max_iat,bwd_max_pkt_len,bwd_mean_iat,...\n0.00092,60,0.00035,..."
+            )
+            if pasted_infer.strip():
+                try:
+                    input_df = pd.read_csv(io.StringIO(pasted_infer.strip()))
+                    results_df = pipeline.predict_dataframe(input_df, threshold=threshold)
+                    st.success(f"Successfully evaluated {len(results_df):,} pasted flow records.")
+                except Exception as e:
+                    st.error(f"Pasted CSV evaluation error: {e}")
 
         elif ingest_mode == "Upload Raw PCAP Capture":
             uploaded_pcap = st.file_uploader("Upload PCAP File (.pcap)", type=["pcap"], key="infer_pcap")
@@ -307,7 +800,7 @@ def main():
                 with st.spinner("Dissecting PCAP packets into bidirectional flows..."):
                     try:
                         pcap_bytes = uploaded_pcap.read()
-                        results_df, flows_df = pipeline.process_pcap(pcap_bytes, max_packets=int(max_pkts), threshold=threshold)
+                        results_df, input_df = pipeline.process_pcap(pcap_bytes, max_packets=int(max_pkts), threshold=threshold)
                         if results_df.empty:
                             st.warning("No IP/TCP/UDP sessions detected in PCAP.")
                         else:
@@ -315,9 +808,11 @@ def main():
                     except Exception as e:
                         st.error(f"PCAP Extraction Error: {e}")
 
-        # Display Inference Output
+        # Display Inference Output & Telemetry Diagrams
         if results_df is not None and not results_df.empty:
             st.session_state["active_results"] = results_df
+            if input_df is not None and not input_df.empty:
+                st.session_state["active_input_df"] = input_df
 
             # Telemetry Summary Cards
             tot = len(results_df)
@@ -326,6 +821,30 @@ def main():
             c_a.metric("Total Flows", f"{tot:,}")
             c_b.metric("Flagged Alerts", f"{alerts:,}")
             c_c.metric("Alert Rate", f"{alerts/tot*100:.2f}%")
+
+            # Threat Visual Analysis Diagrams
+            st.markdown("#### Threat Ingestion Telemetry & Diagrams")
+            diag_c1, diag_c2 = st.columns(2)
+            with diag_c1:
+                fig_verdict = plot_verdict_donut(tot - alerts, alerts, title="Classification Verdict")
+                st.pyplot(fig_verdict)
+                plt.close(fig_verdict)
+            with diag_c2:
+                sev_counts = results_df["severity"].value_counts().to_dict()
+                fig_sev_ingest = plot_severity_bar(sev_counts, title="Alert Severity Tiers")
+                st.pyplot(fig_sev_ingest)
+                plt.close(fig_sev_ingest)
+
+            diag_c3, diag_c4 = st.columns(2)
+            with diag_c3:
+                st_counts = results_df["attack_subtype"].value_counts().to_dict()
+                fig_st_ingest = plot_subtypes_bar(st_counts, title="Attack Subtype Distribution")
+                st.pyplot(fig_st_ingest)
+                plt.close(fig_st_ingest)
+            with diag_c4:
+                fig_p_ingest = plot_prob_distribution(results_df["prob_attack"], threshold=threshold, title="Threat Probability Density")
+                st.pyplot(fig_p_ingest)
+                plt.close(fig_p_ingest)
 
             # Result Dataframe View
             st.subheader("Inference Results Table")
@@ -346,6 +865,7 @@ def main():
         )
 
         active_df = st.session_state.get("active_results", None)
+        active_input = st.session_state.get("active_input_df", None)
 
         if active_df is not None and not active_df.empty:
             alert_indices = active_df.index.tolist()
@@ -358,7 +878,9 @@ def main():
             if st.button("Generate Local SHAP Explanation", type="primary"):
                 with st.spinner("Computing Shapley values across 150 decision trees..."):
                     try:
-                        explanation = pipeline.explain_flow_by_index(active_df, index=selected_idx, top_k=5)
+                        # Prefer input schema if available, otherwise fall back to active_df (now carrying 34 features)
+                        eval_source = active_input if active_input is not None and not active_input.empty else active_df
+                        explanation = pipeline.explain_flow_by_index(eval_source, index=selected_idx, top_k=5)
                         st.session_state["current_explanation"] = explanation
                     except Exception as e:
                         st.error(f"Explanation failed: {e}")
